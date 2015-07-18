@@ -6,21 +6,21 @@ BIN_PATH=/usr/local/src/$APP_NAME/bin
 OUTPUT_PATH=~/cpp-workspace
 
 errorAndQuit() {
-	echo "Error: $APP_NAME <project/class> <create/build> <project name> [class:filename]"
+	echo "Error: $APP_NAME <build/create> <project/class> <project name> [class:filename]"
 	exit
 }
 
-if [[ "$1" != "project" &&  "$1" != "class" && "$1" != "header" ]];
+if [[ "$2" != "project" &&  "$2" != "class" && "$2" != "header" ]];
 	then
 		errorAndQuit
 fi
 
-if [[ "$2" != "create" &&  "$2" != "build" ]];
+if [[ "$1" != "create" &&  "$1" != "build" ]];
 	then
 		errorAndQuit
 fi
 
-if [[ "$2" == "create" ]];
+if [[ "$1" == "create" ]];
 	then
 		# Check to make sure the thing to create has a name.
 		if [ -z "$3" ];
