@@ -1,0 +1,61 @@
+#!/bin/bash
+
+APP_NAME=cpp-run
+SRC_PATH=/usr/local/src/$APP_NAME/src
+BIN_PATH=/usr/local/src/$APP_NAME/bin
+OUTPUT_PATH=~/cpp-workspace
+
+errorAndQuit() {
+	echo "Error: $APP_NAME <project/class> <create/build> <project name> [class:filename]"
+	exit
+}
+
+if [[ "$1" != "project" &&  "$1" != "class" && "$1" != "header" ]];
+	then
+		errorAndQuit
+fi
+
+if [[ "$2" != "create" &&  "$2" != "build" ]];
+	then
+		errorAndQuit
+fi
+
+if [[ "$2" == "create" ]];
+	then
+		# Check to make sure the thing to create has a name.
+		if [ -z "$3" ];
+			then 
+				errorAndQuit
+		fi
+
+		if [[ "$1" == "project" ]];
+			then
+				PROJECT_NAME=$3
+
+				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/bin"
+				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/ext"
+				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/doc"
+				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/lib"
+				# Include, sample, scr
+				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/src/"
+				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/src/$PROJECT_NAME/include"
+				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/src/$PROJECT_NAME/src"
+
+				cp "$SRC_PATH/default_main.cpp" "$OUTPUT_PATH/$PROJECT_NAME/src/$PROJECT_NAME/src/Main.cpp"
+		fi;
+
+		if [[ "$1" == "class" ]];
+			then
+				if [ -z "$4" ];
+					then 
+						errorAndQuit
+				fi
+
+				PROJECT_NAME=$3
+				CLASS_NAME=$4
+
+				cp "$SRC_PATH/default_class.cpp" "$OUTPUT_PATH/$PROJECT_NAME/src/$PROJECT_NAME/src/$4.cpp"
+				cp "$SRC_PATH/default_header.h" "$OUTPUT_PATH/$PROJECT_NAME/src/$PROJECT_NAME/include/$4.h"
+				python "$BIN_PATH/parse_new_files.py" "$OUTPUT_PATH/$PROJECT_NAME/src/$PROJECT_NAME/" "$@"
+		fi;
+fi;
