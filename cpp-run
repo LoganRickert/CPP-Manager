@@ -57,6 +57,11 @@ if [[ "$1" == "build" ]];
 			file=${f##*/}
 			file_name=${file::-4}
 
+			if [[ "$BUILD_BIN/$file_name.out" -e ]];
+				then
+					echo "File $file_name does not exist!"
+			fi
+
 			if g++ -c $SRC_PATH/src/$file -I $SRC_PATH -o $BUILD_BIN/$file_name.out;
 				then
 					echo "Successfully built the file." > /dev/null
