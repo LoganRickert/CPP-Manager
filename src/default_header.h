@@ -1,4 +1,13 @@
 
+/**
+	{{project_name}}
+	{{class_name}}.h
+	purpose: 
+
+	@author Logan Rickert
+	@version 0.0.0 {{date}}
+*/
+
 #include <iostream>
 #include <string>
 

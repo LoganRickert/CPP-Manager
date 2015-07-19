@@ -6,18 +6,76 @@ BIN_PATH=/usr/local/src/$APP_NAME/bin
 OUTPUT_PATH=~/cpp-workspace
 
 errorAndQuit() {
-	echo "Error: $APP_NAME <build/create> <project/class> <project name> [class:filename]"
+	# Refactor
+	echo "Error: '$APP_NAME help' for information."
 	exit
 }
 
-if [[ "$2" != "project" &&  "$2" != "class" && "$2" != "header" ]];
-	then
-		errorAndQuit
-fi
+timestamp() {
+  date +"%T"
+}
 
 if [[ "$1" != "create" &&  "$1" != "build" ]];
 	then
 		errorAndQuit
+fi
+
+if [[ "$1" == "build" ]];
+	then
+		if [[ -z "$3" ]];
+			then 
+				errorAndQuit
+		fi
+
+		PROJECT_NAME=$2
+
+		if [[ "$3" == "." ]];
+			then
+				NAMESPACE=$2
+			else
+				NAMESPACE=$3
+		fi
+
+		SRC_PATH=$OUTPUT_PATH/$PROJECT_NAME/src/$NAMESPACE
+		current_time=$(timestamp)
+		OUTPUT_BIN=$OUTPUT_PATH/$PROJECT_NAME/bin
+		BUILD_BIN=$OUTPUT_PATH/$PROJECT_NAME/build/$NAMESPACE
+		mkdir -p $OUTPUT_BIN/old/
+		mv $OUTPUT_BIN/*.* $OUTPUT_BIN/old/ 2> /dev/null
+
+		if [[ -z "$4" ]];
+			then
+				cd $OUTPUT_PATH/$PROJECT_NAME
+				git add .
+				git commit -a
+		fi
+
+		no_errors="yes"
+
+		for f in $SRC_PATH/src/*.cpp;
+		do
+			file=${f##*/}
+			file_name=${file::-4}
+
+			if g++ -c $SRC_PATH/src/$file -I $SRC_PATH -o $BUILD_BIN/$file_name.out;
+				then
+					echo "Successfully built the file." > /dev/null
+				else
+					no_errors="no"
+			fi
+		done
+
+		if [[ "$no_errors" == "yes" ]]
+			then
+				g++ $BUILD_BIN/*.out -o $OUTPUT_BIN/$NAMESPACE-$current_time.out
+				clear
+				$OUTPUT_PATH/$PROJECT_NAME/bin/$NAMESPACE-$current_time.out # > $OUTPUT_BIN/$NAMESPACE-$current_time.output
+			else
+				echo "Build failed."
+		fi
+
+		# clear
+		# cat $OUTPUT_BIN/*.output
 fi
 
 if [[ "$1" == "create" ]];
@@ -28,11 +86,12 @@ if [[ "$1" == "create" ]];
 				errorAndQuit
 		fi
 
-		if [[ "$1" == "project" ]];
+		if [[ "$2" == "project" ]];
 			then
 				PROJECT_NAME=$3
 
 				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/bin"
+				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/build/$PROJECT_NAME/"
 				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/ext"
 				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/doc"
 				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/lib"
@@ -40,22 +99,54 @@ if [[ "$1" == "create" ]];
 				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/src/"
 				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/src/$PROJECT_NAME/include"
 				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/src/$PROJECT_NAME/src"
+				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/src/$PROJECT_NAME/doc"
 
 				cp "$SRC_PATH/default_main.cpp" "$OUTPUT_PATH/$PROJECT_NAME/src/$PROJECT_NAME/src/Main.cpp"
+
+				cd $OUTPUT_PATH/$PROJECT_NAME/
+				git init > /dev/null
+				echo 'bin/' > .gitignore
+				echo 'build/' >> .gitignore
+				git add .
+				git commit -m "Initial project setup." > /dev/null
 		fi;
 
-		if [[ "$1" == "class" ]];
+		if [[ "$2" == "class" ]];
 			then
-				if [ -z "$4" ];
+				if [[ -z "$5" ]];
 					then 
 						errorAndQuit
 				fi
 
 				PROJECT_NAME=$3
-				CLASS_NAME=$4
+				NAMESPACE=$4
+				CLASS_NAME=$5
 
-				cp "$SRC_PATH/default_class.cpp" "$OUTPUT_PATH/$PROJECT_NAME/src/$PROJECT_NAME/src/$4.cpp"
-				cp "$SRC_PATH/default_header.h" "$OUTPUT_PATH/$PROJECT_NAME/src/$PROJECT_NAME/include/$4.h"
-				python "$BIN_PATH/parse_new_files.py" "$OUTPUT_PATH/$PROJECT_NAME/src/$PROJECT_NAME/" "$@"
+				cp "$SRC_PATH/default_class.cpp" "$OUTPUT_PATH/$PROJECT_NAME/src/$NAMESPACE/src/$CLASS_NAME.cpp"
+				cp "$SRC_PATH/default_header.h" "$OUTPUT_PATH/$PROJECT_NAME/src/$NAMESPACE/include/$CLASS_NAME.h"
+				python "$BIN_PATH/parse_new_files.py" "$OUTPUT_PATH/$PROJECT_NAME/src/$NAMESPACE/" "$@"
+
+				cd $OUTPUT_PATH/$PROJECT_NAME/
+				git add src/$NAMESPACE/src/$CLASS_NAME.cpp
+				git add src/$NAMESPACE/include/$CLASS_NAME.h
+				git commit -m "Added '$CLASS_NAME' cpp and h to '$NAMESPACE' namespace." > /dev/null
+		fi;
+
+		if [[ "$2" == "namespace" ]];
+			then
+				if [[ -z "$4" ]];
+					then 
+						errorAndQuit
+				fi
+
+				PROJECT_NAME=$3
+				NAMESPACE=$4
+
+				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/build/$NAMESPACE/"
+				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/src/$NAMESPACE/include"
+				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/src/$NAMESPACE/src"
+				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/src/$NAMESPACE/doc"
+
+				cp "$SRC_PATH/default_main.cpp" "$OUTPUT_PATH/$PROJECT_NAME/src/$NAMESPACE/src/Main.cpp"
 		fi;
 fi;

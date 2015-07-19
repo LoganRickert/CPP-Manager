@@ -1,13 +1,21 @@
 
 import sys
+import datetime
+
+def capitalize(string):
+	return string[0].upper() + string[1:]
 
 file_path = sys.argv[1]
+project_name = sys.argv[4]
 file_name = sys.argv[5]
+
+now = datetime.datetime.now()
+date = now.strftime("%m-%d-%Y")
 
 cpp_file_path = file_path + "src/" + file_name + ".cpp"
 h_file_path = file_path + "include/" + file_name + ".h"
 
-args = sys.argv[6:]
+args = sys.argv[7:]
 
 if len(args) % 2 != 0:
 	print "You must have an even amount of arguments!"
@@ -31,11 +39,19 @@ cpp_file_contents = cpp_file_contents.replace(
 	"{{class_name}}", file_name
 )
 
+cpp_file_contents = cpp_file_contents.replace(
+	"{{project_name}}", project_name
+)
+
+cpp_file_contents = cpp_file_contents.replace(
+	"{{date}}", date
+)
+
 if len(args) > 0:
 	construct_init = file_name + "::" + file_name + "("
 
 	for key, value in parse:
-		construct_init += key + " s" + value.capitalize() + ", "
+		construct_init += key + " s" + capitalize(value) + ", "
 
 	construct_init = construct_init[:-2] + ") {"
 
@@ -46,7 +62,7 @@ if len(args) > 0:
 	construct_init_equals = ""
 
 	for key, value in parse:
-		construct_init_equals += "\t" + value + " = s" + value.capitalize() + ";\n"
+		construct_init_equals += "\t" + value + " = s" + capitalize(value) + ";\n"
 
 	construct_init_equals += "}"
 
@@ -68,14 +84,14 @@ void %s::set%s(%s s%s) {
 """ % (
 		key,
 		file_name,
-		value.capitalize(),
+		capitalize(value),
 		value,
 		file_name,
-		value.capitalize(),
+		capitalize(value),
 		key,
-		value.capitalize(),
+		capitalize(value),
 		value,
-		value.capitalize()
+		capitalize(value)
 	)
 
 	getters_setters = getters_setters[:-2]
@@ -105,6 +121,14 @@ h_file_contents = h_file_contents.replace(
 	"{{class_name}}", file_name
 )
 
+h_file_contents = h_file_contents.replace(
+	"{{project_name}}", project_name
+)
+
+h_file_contents = h_file_contents.replace(
+	"{{date}}", date
+)
+
 if len(args) > 0:
 	class_construct_full = file_name + "("
 
@@ -120,12 +144,12 @@ if len(args) > 0:
 	getters_setters = ""
 
 	for key, value in parse:
-		getters_setters += "\t\t" + key + " get" + value.capitalize() + "();\n"
+		getters_setters += "\t\t" + key + " get" + capitalize(value) + "();\n"
 
 	getters_setters += '\n'
 
 	for key, value in parse:
-		getters_setters += "\t\tvoid set" + value.capitalize() + "(" + key + " s" + value.capitalize() + ");\n"
+		getters_setters += "\t\tvoid set" + capitalize(value) + "(" + key + " s" + capitalize(value) + ");\n"
 
 	h_file_contents = h_file_contents.replace(
 		"{{getters_setters}}", getters_setters
