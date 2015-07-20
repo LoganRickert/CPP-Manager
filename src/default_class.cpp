@@ -1,14 +1,15 @@
 
 /**
-	{{project_name}}
+	{{namespace}}::{{class_name}}
 	{{class_name}}.cpp
 	purpose: 
 
 	@author Logan Rickert
 	@version 0.0.0 {{date}}
+	@updated {{date}}
 */
 
-#include "include/{{class_name}}.h"
+#include "{{namespace}}/{{class_name}}.h"
 
 {{class_name}}::{{class_name}}() {
 

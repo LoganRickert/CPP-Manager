@@ -36,12 +36,15 @@ if [[ "$1" == "build" ]];
 				NAMESPACE=$3
 		fi
 
-		SRC_PATH=$OUTPUT_PATH/$PROJECT_NAME/src/$NAMESPACE
 		current_time=$(timestamp)
-		OUTPUT_BIN=$OUTPUT_PATH/$PROJECT_NAME/bin
-		BUILD_BIN=$OUTPUT_PATH/$PROJECT_NAME/build/$NAMESPACE
-		mkdir -p $OUTPUT_BIN/old/
-		mv $OUTPUT_BIN/*.* $OUTPUT_BIN/old/ 2> /dev/null
+
+		SRC_PATH=$OUTPUT_PATH/$PROJECT_NAME/src/$NAMESPACE
+		output_bin=$OUTPUT_PATH/$PROJECT_NAME/bin
+		build_dir=$OUTPUT_PATH/$PROJECT_NAME/build/$NAMESPACE
+		include_dir=$OUTPUT_PATH/$PROJECT_NAME/include
+
+		mkdir -p $output_bin/old/
+		mv $output_bin/*.* $output_bin/old/ 2> /dev/null
 
 		if [[ -z "$4" ]];
 			then
@@ -51,36 +54,52 @@ if [[ "$1" == "build" ]];
 		fi
 
 		no_errors="yes"
+		built_file="no"
+
+		for f in $SRC_PATH/include/*.h;
+		do
+			file=${f##*/}
+			file_name=${file::-4}
+			echo $include_dir/$NAMESPACE/$file
+			if ! [[ -e "$include_dir/$NAMESPACE/$file" ]] || [[ "$f" -nt "$include_dir/$NAMESPACE/$file" ]];
+				then
+					cp $f $include_dir/$NAMESPACE/$file
+			fi
+		done
 
 		for f in $SRC_PATH/src/*.cpp;
 		do
 			file=${f##*/}
 			file_name=${file::-4}
-
-			if [[ "$BUILD_BIN/$file_name.out" -e ]];
+			if ! [[ -e "$build_dir/$file_name.o" ]] || [[ "$f" -nt "$build_dir/$file_name.o" ]];
 				then
-					echo "File $file_name does not exist!"
-			fi
-
-			if g++ -c $SRC_PATH/src/$file -I $SRC_PATH -o $BUILD_BIN/$file_name.out;
-				then
-					echo "Successfully built the file." > /dev/null
-				else
-					no_errors="no"
+					python "$BIN_PATH/update_files.py" "build_inc" $f
+					if g++ -c $f -I $include_dir -o $build_dir/$file_name.out;
+						then
+							echo "Successfully built the $file." #> /dev/null
+							built_file="yes"
+						else
+							no_errors="no"
+					fi
 			fi
 		done
 
-		if [[ "$no_errors" == "yes" ]]
+		if [[ "$no_errors" == "yes" ]];
 			then
-				g++ $BUILD_BIN/*.out -o $OUTPUT_BIN/$NAMESPACE-$current_time.out
+				g++ $build_dir/*.out -o $output_bin/$current_time-$NAMESPACE.out
 				clear
-				$OUTPUT_PATH/$PROJECT_NAME/bin/$NAMESPACE-$current_time.out # > $OUTPUT_BIN/$NAMESPACE-$current_time.output
+				$OUTPUT_PATH/$PROJECT_NAME/bin/$current_time-$NAMESPACE.out # > $output_bin/$NAMESPACE-$current_time.output
 			else
 				echo "Build failed."
 		fi
 
+		if [[ "$built_file" == "yes" ]];
+			then
+				# Generate documentation
+				echo "" > /dev/null
+		fi;
 		# clear
-		# cat $OUTPUT_BIN/*.output
+		# cat $output_bin/*.output
 fi
 
 if [[ "$1" == "create" ]];
@@ -97,8 +116,9 @@ if [[ "$1" == "create" ]];
 
 				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/bin"
 				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/build/$PROJECT_NAME/"
-				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/ext"
 				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/doc"
+				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/include"
+				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/include/$PROJECT_NAME"
 				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/lib"
 				# Include, sample, scr
 				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/src/"
@@ -107,6 +127,8 @@ if [[ "$1" == "create" ]];
 				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/src/$PROJECT_NAME/doc"
 
 				cp "$SRC_PATH/default_main.cpp" "$OUTPUT_PATH/$PROJECT_NAME/src/$PROJECT_NAME/src/Main.cpp"
+
+				python "$BIN_PATH/parse_new_files.py" "$OUTPUT_PATH/$PROJECT_NAME/src/$NAMESPACE" "$@"
 
 				cd $OUTPUT_PATH/$PROJECT_NAME/
 				git init > /dev/null
@@ -129,7 +151,9 @@ if [[ "$1" == "create" ]];
 
 				cp "$SRC_PATH/default_class.cpp" "$OUTPUT_PATH/$PROJECT_NAME/src/$NAMESPACE/src/$CLASS_NAME.cpp"
 				cp "$SRC_PATH/default_header.h" "$OUTPUT_PATH/$PROJECT_NAME/src/$NAMESPACE/include/$CLASS_NAME.h"
+
 				python "$BIN_PATH/parse_new_files.py" "$OUTPUT_PATH/$PROJECT_NAME/src/$NAMESPACE/" "$@"
+				python "$BIN_PATH/update_files.py" "add_class" "$OUTPUT_PATH/$PROJECT_NAME/src/$NAMESPACE/src/Main.cpp" "$CLASS_NAME" "$NAMESPACE"
 
 				cd $OUTPUT_PATH/$PROJECT_NAME/
 				git add src/$NAMESPACE/src/$CLASS_NAME.cpp
@@ -151,7 +175,10 @@ if [[ "$1" == "create" ]];
 				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/src/$NAMESPACE/include"
 				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/src/$NAMESPACE/src"
 				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/src/$NAMESPACE/doc"
+				mkdir -p "$OUTPUT_PATH/$PROJECT_NAME/include/$NAMESPACE"
 
 				cp "$SRC_PATH/default_main.cpp" "$OUTPUT_PATH/$PROJECT_NAME/src/$NAMESPACE/src/Main.cpp"
+
+				python "$BIN_PATH/parse_new_files.py" "$OUTPUT_PATH/$PROJECT_NAME/src/$NAMESPACE" "$@"
 		fi;
 fi;

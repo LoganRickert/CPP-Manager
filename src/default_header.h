@@ -1,17 +1,16 @@
 
 /**
-	{{project_name}}
+	{{namespace}}::{{class_name}}
 	{{class_name}}.h
 	purpose: 
 
 	@author Logan Rickert
 	@version 0.0.0 {{date}}
+	@updated {{date}}
 */
 
 #include <iostream>
 #include <string>
-
-using namespace std;
 
 #ifndef {{class_name_caps}}_H
 #define {{class_name_caps}}_H
