@@ -41,7 +41,7 @@ def add_class():
 		build_file = f.read()
 
 	build_file = build_file.replace(
-		">\n\n", ">\n\n#include \"" + namespace + "/" + class_name + ".h\"\n", 1
+		">\n\n", ">\n\n#include \"include/" + class_name + ".h\"\n", 1
 	)
 
 	with open(file_path, 'w') as f:
