@@ -220,7 +220,6 @@ if [[ "$1" == "create" ]];
 				mkdir -p "$OUTPUT_PATH/$project_name/src/$namespace/include"
 				mkdir -p "$OUTPUT_PATH/$project_name/src/$namespace/src"
 				mkdir -p "$OUTPUT_PATH/$project_name/src/$namespace/doc"
-				mkdir -p "$OUTPUT_PATH/$project_name/include/$namespace"
 
 				cp "$src_dir/default_main.cpp" "$OUTPUT_PATH/$project_name/src/$namespace/src/Main.cpp"
 

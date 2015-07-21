@@ -4,7 +4,7 @@
 	{{class_name}}.h
 	purpose: 
 
-	@author Logan Rickert
+	@author {{username}}
 	@version 0.0.0 {{date}}
 	@updated {{date}}
 */

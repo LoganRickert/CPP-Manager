@@ -14,6 +14,8 @@ date = now.strftime("%m-%d-%Y %H:%M:%S")
 
 args = sys.argv[7:]
 
+username = "Logan Rickert"
+
 def new_class():
 	namespace = sys.argv[5]
 	file_name = sys.argv[6]
@@ -49,6 +51,10 @@ def new_class():
 
 	cpp_file_contents = cpp_file_contents.replace(
 		"{{date}}", date
+	)
+
+	cpp_file_contents = cpp_file_contents.replace(
+		"{{username}}", username
 	)
 
 	if len(args) > 0:
@@ -123,6 +129,10 @@ void %s::set%s(%s s%s) {
 
 	h_file_contents = h_file_contents.replace(
 		"{{class_name}}", file_name
+	)
+
+	h_file_contents = h_file_contents.replace(
+		"{{username}}", username
 	)
 
 	h_file_contents = h_file_contents.replace(
@@ -205,6 +215,10 @@ def new_main():
 
 	cpp_file_contents = cpp_file_contents.replace(
 		"{{namespace}}", project_name
+	)
+
+	cpp_file_contents = cpp_file_contents.replace(
+		"{{class_name}}", username
 	)
 
 	cpp_file_contents = cpp_file_contents.replace(
