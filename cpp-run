@@ -50,10 +50,32 @@ createNewClass() {
 	python "$app_bin_path/parse_new_files.py" "class" "$namespace_space/" "$project_name" "$namespace" "$class_name" $class_args
 	python "$app_bin_path/update_files.py" "add_class" "$namespace_space/src/Main.cpp" "$class_name" "$namespace"
 
-	cd $OUTPUT_PATH/$project_name/
+	cd $project_space
 	git add src/$namespace/src/$class_name.cpp
 	git add src/$namespace/include/$class_name.h
 	git commit -m "Added '$class_name' cpp and h to '$namespace' namespace." > /dev/null
+}
+
+createNewProject() {
+	project_name=$1
+	
+	project_space=$OUTPUT_PATH/$project_name
+
+	mkdir -p "$project_space/bin"
+	mkdir -p "$project_space/doc"
+	mkdir -p "$project_space/include/$project_name"
+	mkdir -p "$project_space/lib/compiled"
+
+	cd $project_space
+	git init > /dev/null
+	# Make a .gitignore default mate.
+	echo 'bin/' > .gitignore
+	echo 'build/' >> .gitignore
+	echo 'lib/compiled' >> .gitignore
+	git add .
+	git commit -m "Initial project setup." > /dev/null
+
+	createNewNamespace $project_name $project_name
 }
 
 if [[ "$1" != "create" &&  "$1" != "build" ]];
@@ -197,32 +219,7 @@ if [[ "$1" == "create" ]];
 			then
 				project_name=$3
 
-				mkdir -p "$OUTPUT_PATH/$project_name/bin"
-				mkdir -p "$OUTPUT_PATH/$project_name/build/$project_name/Release"
-				mkdir -p "$OUTPUT_PATH/$project_name/build/$project_name/Debug"
-				mkdir -p "$OUTPUT_PATH/$project_name/doc"
-				mkdir -p "$OUTPUT_PATH/$project_name/include"
-				mkdir -p "$OUTPUT_PATH/$project_name/include/$project_name"
-				mkdir -p "$OUTPUT_PATH/$project_name/lib"
-				mkdir -p "$OUTPUT_PATH/$project_name/lib/compiled"
-				# Include, sample, scr
-				mkdir -p "$OUTPUT_PATH/$project_name/src/"
-				mkdir -p "$OUTPUT_PATH/$project_name/src/$project_name/include"
-				mkdir -p "$OUTPUT_PATH/$project_name/src/$project_name/src"
-				mkdir -p "$OUTPUT_PATH/$project_name/src/$project_name/doc"
-
-				cp "$app_src_dir/default_main.cpp" "$OUTPUT_PATH/$project_name/src/$project_name/src/Main.cpp"
-
-				python "$app_bin_path/parse_new_files.py" "$OUTPUT_PATH/$project_name/src/$namespace" "$@"
-
-				cd $OUTPUT_PATH/$project_name/
-				git init > /dev/null
-				# Make a .gitignore default mate.
-				echo 'bin/' > .gitignore
-				echo 'build/' >> .gitignore
-				echo 'lib/compiled' >> .gitignore
-				git add .
-				git commit -m "Initial project setup." > /dev/null
+				createNewProject $project_name
 		fi;
 
 		if [[ "$2" == "class" ]];
@@ -238,17 +235,6 @@ if [[ "$1" == "create" ]];
 				class_args=${@:6}
 
 				createNewClass $project_name $namespace $class_name $class_args
-
-				# cp "$app_src_dir/default_class.cpp" "$OUTPUT_PATH/$project_name/src/$namespace/src/$class_name.cpp"
-				# cp "$app_src_dir/default_header.h" "$OUTPUT_PATH/$project_name/src/$namespace/include/$class_name.h"
-
-				# python "$app_bin_path/parse_new_files.py" "$OUTPUT_PATH/$project_name/src/$namespace/" "$@"
-				# python "$app_bin_path/update_files.py" "add_class" "$OUTPUT_PATH/$project_name/src/$namespace/src/Main.cpp" "$class_name" "$namespace"
-
-				# cd $OUTPUT_PATH/$project_name/
-				# git add src/$namespace/src/$class_name.cpp
-				# git add src/$namespace/include/$class_name.h
-				# git commit -m "Added '$class_name' cpp and h to '$namespace' namespace." > /dev/null
 		fi;
 
 		if [[ "$2" == "namespace" ]];

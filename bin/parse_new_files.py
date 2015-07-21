@@ -5,8 +5,6 @@ import datetime
 def capitalize(string):
 	return string[0].upper() + string[1:]
 
-print sys.argv
-
 action = sys.argv[1]
 file_path = sys.argv[2]
 project_name = sys.argv[3]
@@ -197,13 +195,6 @@ void %s::set%s(%s s%s) {
 
 def new_main():
 	cpp_file_path = file_path + "/src/Main.cpp"
-
-	if sys.argv[3] == "project":
-		project_name = sys.argv[4]
-		cpp_file_path = file_path + project_name + "/src/Main.cpp"
-	elif sys.argv[3] == "namespace":
-		cpp_file_path = file_path + "/src/Main.cpp"
-		project_name = sys.argv[5]
 
 	cpp_file_contents = None
 	h_file_contents = None
