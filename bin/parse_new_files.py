@@ -5,6 +5,8 @@ import datetime
 def capitalize(string):
 	return string[0].upper() + string[1:]
 
+print sys.argv
+
 file_path = sys.argv[1]
 action = sys.argv[3]
 project_name = sys.argv[4]
