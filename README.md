@@ -483,6 +483,111 @@ set_target_properties("test"
 )
 ```
 
+## Libraries
+
+`/test/src/test/src/Main.cpp`
+
+```C++
+#include <iostream>
+#include <string>
+
+#include "test/include/Student.h"
+#include "test/include/Person.h"
+#include "include/Util/Print.h"
+```
+
+`/test/include/Util/Print.h`
+
+```C++
+
+/**
+	test::Print
+	Print.h
+	purpose: 
+
+	@author Logan Rickert
+	@version 0.0.0 07-21-2015 10:24:28
+	@updated 07-21-2015 10:24:28
+*/
+
+#include <iostream>
+#include <string>
+
+#ifndef PRINT_H
+#define PRINT_H
+
+class Print {
+
+	public:
+		Print();
+
+		~Print();
+
+	private:
+
+};
+
+#endif
+```
+
+`/test/lib/Util/Print.h`
+
+```C++
+
+/**
+	test::Print
+	Print.cpp
+	purpose: 
+
+	@author Logan Rickert
+	@version 0.0.0 07-21-2015 10:24:28
+	@updated 07-21-2015 10:24:28
+*/
+
+#include "include/Util/Print.h"
+
+Print::Print() {
+
+}
+
+Print::~Print() {
+
+}
+```
+
+tree of lib and include:
+
+```
+├── include
+│   ├── test
+│   └── Util
+│       └── Print.h
+├── lib
+│   ├── compiled
+│   └── Util
+│       └── Print.cpp
+```
+
+Now lets build like normal:
+
+```
+cpp-run build test . Debug .
+```
+
+tree of lib and include:
+
+```
+├── include
+│   ├── test
+│   └── Util
+│       └── Print.h
+├── lib
+│   ├── compiled
+│   │   └── lib.Util.Print.a
+│   └── Util
+│       └── Print.cpp
+```
+
 ## Final Git Log:
 
 ```

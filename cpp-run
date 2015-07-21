@@ -50,6 +50,7 @@ if [[ "$1" == "build" ]];
 		build_dir=$OUTPUT_PATH/$project_name/build/$namespace/$build_type
 		include_dir=$OUTPUT_PATH/$project_name/include
 		lib_dir=$OUTPUT_PATH/$project_name/lib
+		g_include_dir=$OUTPUT_PATH/$project_name/
 
 		mkdir -p $output_bin/old/
 		mv $output_bin/*.* $output_bin/old/ 2> /dev/null
@@ -74,7 +75,7 @@ if [[ "$1" == "build" ]];
 		# 	printf "include_directories(\"$f\")\n" >> $build_dir/CMakeLists.txt
 		# done
 
-		printf "include_directories(\"$include_dir\")\n\n" >> $build_dir/CMakeLists.txt
+		printf "include_directories(\"$g_include_dir\")\n\n" >> $build_dir/CMakeLists.txt
 
 		printf "add_executable(\"$namespace\"\n" >> $build_dir/CMakeLists.txt
 
@@ -88,7 +89,7 @@ if [[ "$1" == "build" ]];
 
 		for f in $(find $src_dir/ \( -name "*.cpp" -o -name "*.h" \));
 		do
-			result="$(cat $f | grep "#include \"lib/")"
+			result="$(cat $f | grep "#include \"include/")"
 			if ! [[ $result == "" ]];
 				then
 					echo "${result/\" #/\n}" >> $build_dir/temp
@@ -97,8 +98,10 @@ if [[ "$1" == "build" ]];
 
 	 	cat $build_dir/temp | sort -u | while read line;
 		do
-			name=${line:10}
+			name=${line:18}
 			name=${name::-3}
+
+			echo $name
 
 			printf "add_library(\".${name/"/"/"."}\" STATIC \"$lib_dir/$name.cpp\")\n" >> $build_dir/CMakeLists.txt
 			printf "target_link_libraries(\"$namespace\" \".${name/"/"/"."}\")\n\n" >> $build_dir/CMakeLists.txt
