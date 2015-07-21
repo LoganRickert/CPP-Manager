@@ -5,16 +5,32 @@ app_src_dir=/usr/local/src/$APP_NAME/src
 app_bin_path=/usr/local/src/$APP_NAME/bin
 OUTPUT_PATH=~/cpp-workspace
 
+##############################################
+#####									 #####
+#####              Functions             #####
+#####									 #####
+##############################################
+
+# This is called whenever not enough arguments are given.
+# It needs to be slightly redone and give the user more 
+# information.
 errorAndQuit() {
 	# Refactor
 	echo "Error: '$APP_NAME help' for information."
 	exit
 }
 
+# This returns the time as formated as %T
 timestamp() {
-  date +"%T"
+  date + "%T"
 }
 
+# This creates a new namespace
+# It creates a ns directory for build and src.
+# It also adds a Main.cpp to the src/ns and parses it.
+# Arguments:
+# 	$1 - project_name; IE: MySweetProject
+#	$2 - namespace;	   IE: MySweetNamespace
 createNewNamespace() {
 	project_name=$1
 	namespace=$2
@@ -35,6 +51,17 @@ createNewNamespace() {
 	git commit -m "Added '$namespace' namespace and initial Main.cpp." > /dev/null
 }
 
+# This method creates a new class for the given class_name inside
+# the given namespace inside the given project_name.
+# It creates a class_name.cpp and a class_name.h and processes
+# the template file. class_args are default member variables you
+# want to be added automatically. It adds the member variables to
+# the header and class and also adds default getters and setters.
+# Arguments:
+# 	$1 - project_name;   IE: MySweetProject
+#	$2 - namespace;	     IE: MySweetNamespace
+#	$3 - class_name;     IE: MySweetClass
+#	$4 ... $n - class_args; IE: std::string name int age
 createNewClass() {
 	project_name=$1
 	namespace=$2
@@ -56,6 +83,10 @@ createNewClass() {
 	git commit -m "Added '$class_name' cpp and h to '$namespace' namespace." > /dev/null
 }
 
+# This method creates a new project at ~/cpp-workspace/$project_name
+# It creates a project_name bin, doc, include and lib.
+# Arguments:
+# 	$1 - project_name	IE: MySweetProject
 createNewProject() {
 	project_name=$1
 
@@ -75,8 +106,15 @@ createNewProject() {
 	createNewNamespace $project_name $project_name
 }
 
+# This method generates a CMakefile for the project_name / namespace
+# Arguments:
+# 	$1 - project_name	IE: MySweetProject
+# 	$1 - namespace 		IE: MySweetNamespace
+# 	$3 - build_type		IE: Debug IE: Release
 createCMakeFile() {
-	namespace=$1
+	project_name=$1
+	namespace=$2
+	build_type=$3
 
 	project_space=$OUTPUT_PATH/$project_name
 
@@ -148,15 +186,31 @@ createCMakeFile() {
 	printf ")\n" >> $build_dir/CMakeLists.txt
 }
 
+# This method generates a Makefile for the directory given.
+# Arguments:
+# 	$1 - build_dir	IE: $project_path/build/$namespace/$build_type
 createMakefile() {
+	build_dir=$1
+
 	cd $build_dir
 	cmake -G "Unix Makefiles" > /dev/null
 }
 
+# This runs the make file in the directory given.
+# Arguments:
+# 	$1 - build_dir	IE: $project_path/build/$namespace/$build_type
 runMakefile() {
+	build_dir=$1
+	
 	cd $build_dir
 	make > /dev/null
 }
+
+##############################################
+#####									 #####
+#####          Start of program          #####
+#####									 #####
+##############################################
 
 if [[ "$1" != "create" &&  "$1" != "build" ]];
 	then
@@ -193,7 +247,7 @@ if [[ "$1" == "build" ]];
 		output_bin=$project_path/bin
 		build_dir=$project_path/build/$namespace/$build_type
 
-		createCMakeFile $namespace
+		createCMakeFile $project_name $namespace $build_type
 
 		any_errors="no"
 
