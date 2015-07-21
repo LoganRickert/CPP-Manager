@@ -485,7 +485,7 @@ set_target_properties("test"
 
 ## Libraries
 
-`/test/src/test/src/Main.cpp`
+File: `/test/src/test/src/Main.cpp`
 
 ```C++
 #include <iostream>
@@ -496,7 +496,7 @@ set_target_properties("test"
 #include "include/Util/Print.h"
 ```
 
-`/test/include/Util/Print.h`
+File: `/test/include/Util/Print.h`
 
 ```C++
 
@@ -530,7 +530,7 @@ class Print {
 #endif
 ```
 
-`/test/lib/Util/Print.h`
+File: `/test/lib/Util/Print.h`
 
 ```C++
 
@@ -559,7 +559,6 @@ tree of lib and include:
 
 ```
 ├── include
-│   ├── test
 │   └── Util
 │       └── Print.h
 ├── lib
@@ -578,7 +577,6 @@ tree of lib and include:
 
 ```
 ├── include
-│   ├── test
 │   └── Util
 │       └── Print.h
 ├── lib
