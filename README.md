@@ -1,5 +1,5 @@
 # CPP-Manager
-This is a program I wrote that is basically a cpp console IDE. It can generate projects, classes, namespaces and more. It can automatically build and run a project with one command and it also version controls.
+This is a program I wrote that is basically a cpp console IDE. It can generate projects, classes, namespaces and more. It can automatically build and run a project with one command and it also does automatic version control using Git.
 
 The default output is at OUTPUT_PATH=~/cpp-workspace. The path can be found on line 6 of cpp-run.
 You can change the default name at the top of files by changing 'username' on line 17 of bin/parse_new_files.py
@@ -419,6 +419,35 @@ Makefile in the Debug folder and cpp-run then runs 'make'. Once it's done, it ru
 
 You can view the new program at bin/namespace.
 
+The following is the CMake file that was generated for test. (I'm still new to 
+CMake so I'm sure you could optimize it by a lot.)
+
+```
+cmake_minimum_required(VERSION 2.8)
+
+project("test")
+
+include_directories("/home/logan/cpp-workspace/test/src")
+include_directories("/home/logan/cpp-workspace/test/include")
+
+add_executable("test"
+	"/home/logan/cpp-workspace/test/src/test/src/Person.cpp"
+	"/home/logan/cpp-workspace/test/src/test/src/Student.cpp"
+	"/home/logan/cpp-workspace/test/src/test/src/Main.cpp"
+)
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY /home/logan/cpp-workspace/test/lib/compiled)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY /home/logan/cpp-workspace/test/lib/compiled)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY /home/logan/cpp-workspace/test/bin)
+
+set_target_properties("test"
+	PROPERTIES
+	ARCHIVE_OUTPUT_DIRECTORY "/home/logan/cpp-workspace/test/lib/compiled"
+	LIBRARY_OUTPUT_DIRECTORY "/home/logan/cpp-workspace/test/lib/compiled"
+	RUNTIME_OUTPUT_DIRECTORY "/home/logan/cpp-workspace/test/bin"
+)
+```
+
 ## Creating A New Namespace
 
 Creating a new namespace is super easy, just run:
@@ -452,36 +481,6 @@ tree test/src/
 
 On running the command, cpp-run will git add src/$namespace and commit with
 the following: 'Added '$namespace' namespace and initial Main.cpp.'.
-
-The following is the CMake file that was generated for test. (I'm still new to 
-CMake so I'm sure you could optimize it by a lot.)
-
-(The )
-```
-cmake_minimum_required(VERSION 2.8)
-
-project("test")
-
-include_directories("/home/logan/cpp-workspace/test/src")
-include_directories("/home/logan/cpp-workspace/test/include")
-
-add_executable("test"
-	"/home/logan/cpp-workspace/test/src/test/src/Person.cpp"
-	"/home/logan/cpp-workspace/test/src/test/src/Student.cpp"
-	"/home/logan/cpp-workspace/test/src/test/src/Main.cpp"
-)
-
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY /home/logan/cpp-workspace/test/lib/compiled)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY /home/logan/cpp-workspace/test/lib/compiled)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY /home/logan/cpp-workspace/test/bin)
-
-set_target_properties("test"
-	PROPERTIES
-	ARCHIVE_OUTPUT_DIRECTORY "/home/logan/cpp-workspace/test/lib/compiled"
-	LIBRARY_OUTPUT_DIRECTORY "/home/logan/cpp-workspace/test/lib/compiled"
-	RUNTIME_OUTPUT_DIRECTORY "/home/logan/cpp-workspace/test/bin"
-)
-```
 
 ## Libraries
 
