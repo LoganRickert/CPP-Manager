@@ -133,7 +133,7 @@ cpp-run create class <project name> <namespace> <class name> [class members]
 
 * `<project name>` is the name of the project.
 * `<namespace>` is the name of the namespace inside of the project. If the namespace
-	and project name are the same, you can sub this with a `.`.
+	and project name are the same, you can sub this with a period.
 * `<class name>` is the name of the class.
 * `[class members]` are members you want cpp-run to automatically add. It will generate 
 	getters and setters and a contructor([class members]) automatically.
@@ -211,7 +211,7 @@ class Person {
 no library calls and two new lines below them, it won't actually work.
 
 ```
-cpp-run create class test test Student std::string name int age double gpa
+cpp-run create class test . Student std::string name int age double gpa
 
 tree test/src/test
 ├── doc
