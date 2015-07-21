@@ -323,3 +323,171 @@ void Student::setGpa(double sGpa) {
 
 After each new class generation, cpp-run automatically git add classname.cpp and classname.h 
 and commits with the message: 'Added '$CLASS_NAME' cpp and h to '$namespace' namespace.'
+
+## Building
+
+(Building is currently broken. It needs a super minor fix in the way it does includes. Should be fixed today.)
+
+To build your namespace, do the following:
+
+```cpp-run build <project name> <namespace> [Default:Debug/Release] [No git commit]```
+* `<project name>` is the name of the project
+* `<namespace>` is the name of the namespace you want to build. If the namespace is 
+	the same as the project name, you can sub it for a peroid.
+* `[Default:Debug/Release]` is whether or not you want to build the namespace in
+	debug or release. No argument means it will build in Debug.
+* `[No git commit]` means if this argument is present, it will not run `git add .` `git commit -a`.
+
+An example:
+
+```
+cpp-run build test . Debug
+
+Added a util print function and #include "*.h"s
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Changes to be committed:
+#       new file:   include/Util/Print.h
+#       new file:   lib/Util/Print.cpp
+#       modified:   src/test/src/Main.cpp
+#
+
+Hello World
+```
+
+Our new tree for bin and build looks like this:
+
+```
+test
+├── bin
+│   ├── old
+│   └── test
+├── build
+│   └── test
+│       ├── Debug
+│       │   ├── CMakeCache.txt
+│       │   ├── CMakeFiles
+│       │   │   ├── 2.8.12.2
+│       │   │   │   ├── CMakeCCompiler.cmake
+│       │   │   │   ├── CMakeCXXCompiler.cmake
+│       │   │   │   ├── CMakeDetermineCompilerABI_C.bin
+│       │   │   │   ├── CMakeDetermineCompilerABI_CXX.bin
+│       │   │   │   ├── CMakeSystem.cmake
+│       │   │   │   ├── CompilerIdC
+│       │   │   │   │   ├── a.out
+│       │   │   │   │   └── CMakeCCompilerId.c
+│       │   │   │   └── CompilerIdCXX
+│       │   │   │       ├── a.out
+│       │   │   │       └── CMakeCXXCompilerId.cpp
+│       │   │   ├── cmake.check_cache
+│       │   │   ├── CMakeDirectoryInformation.cmake
+│       │   │   ├── CMakeOutput.log
+│       │   │   ├── CMakeTmp
+│       │   │   ├── Makefile2
+│       │   │   ├── Makefile.cmake
+│       │   │   ├── progress.marks
+│       │   │   ├── TargetDirectories.txt
+│       │   │   └── test.dir
+│       │   │       ├── build.make
+│       │   │       ├── cmake_clean.cmake
+│       │   │       ├── CXX.includecache
+│       │   │       ├── DependInfo.cmake
+│       │   │       ├── depend.internal
+│       │   │       ├── depend.make
+│       │   │       ├── flags.make
+│       │   │       ├── home
+│       │   │       │   └── logan
+│       │   │       │       └── cpp-workspace
+│       │   │       │           └── test
+│       │   │       │               └── src
+│       │   │       │                   └── test
+│       │   │       │                       └── src
+│       │   │       │                           ├── Main.cpp.o
+│       │   │       │                           ├── Person.cpp.o
+│       │   │       │                           └── Student.cpp.o
+│       │   │       ├── link.txt
+│       │   │       └── progress.make
+│       │   ├── cmake_install.cmake
+│       │   ├── CMakeLists.txt
+│       │   └── Makefile
+│       └── Release
+```
+
+When you run `cpp-run build`, it generates a CMake file in the build/namespace/Debug directory.
+It then runs the CMake file by running 'cmake -G "Unix Makefiles"'. The command will generate a
+Makefile in the Debug folder and cpp-run then runs 'make'. Once it's done, it runs 'git add .' and 
+'git commit -a'. You can enter in a commit message and it will then run the new program.
+
+You can view the new program at bin/namespace.
+
+## Creating A New Namespace
+
+Creating a new namespace is super easy, just run:
+
+```
+cpp-run create namespace <project name> <namespace>
+```
+
+* `<project name>` is the name of the project.
+* `<namespace>` is the name of the namespace.
+
+Your tree of src should now look like this:
+
+```
+tree test/src/
+├── test
+│   ├── doc
+│   ├── include
+│   │   ├── Person.h
+│   │   └── Student.h
+│   └── src
+│       ├── Main.cpp
+│       ├── Person.cpp
+│       └── Student.cpp
+└── testOther
+    ├── doc
+    ├── include
+    └── src
+        └── Main.cpp
+```
+
+On running the command, cpp-run will git add src/$namespace and commit with
+the following: 'Added '$namespace' namespace and initial Main.cpp.'.
+
+## Final Git Log:
+
+```
+commit 53e20e9bd19a10c30bdb98796a2504046fcea637
+Author: Logan Rickert <myemail>
+Date:   Tue Jul 21 10:53:42 2015 -0400
+
+    Added 'testOther' namespace and initial Main.cpp.
+
+commit 48396f4cdfa24bda8a3059409c49d9c17e36b8a3
+Author: Logan Rickert <myemail>
+Date:   Tue Jul 21 10:45:17 2015 -0400
+
+    Added a util print function and #include "*.h"s
+
+commit 6f467fb0aebbe3351e2b85e5ff17baa46fd9d97d
+Author: Logan Rickert <myemail>
+Date:   Tue Jul 21 10:30:26 2015 -0400
+
+    Added 'Student' cpp and h to 'test' namespace.
+
+commit 293d1f5038e68b2b4dde4f7870a0286f684c9c2e
+Author: Logan Rickert <myemail>
+Date:   Tue Jul 21 10:24:28 2015 -0400
+
+    Added 'Person' cpp and h to 'test' namespace.
+
+commit 634bbc170f57a0602006fd9d2c9ac6be31a98c2e
+Author: Logan Rickert <myemail>
+Date:   Tue Jul 21 09:49:21 2015 -0400
+
+    Initial project setup.
+```
+
+A pretty nice log if I do say so myself for only actually
+writing one commit message.

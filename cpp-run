@@ -137,6 +137,7 @@ if [[ "$1" == "build" ]];
 		make > /dev/null
 
 		cd $OUTPUT_PATH/$project_name/
+		git add .
 		git commit -a
 		clear
 		$output_bin/$project_name
@@ -224,5 +225,9 @@ if [[ "$1" == "create" ]];
 				cp "$src_dir/default_main.cpp" "$OUTPUT_PATH/$project_name/src/$namespace/src/Main.cpp"
 
 				python "$BIN_PATH/parse_new_files.py" "$OUTPUT_PATH/$project_name/src/$namespace" "$@"
+
+				cd $OUTPUT_PATH/$project_name/
+				git add src/$namespace
+				git commit -m "Added '$namespace' namespace and initial Main.cpp." > /dev/null
 		fi;
 fi;
