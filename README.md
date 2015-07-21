@@ -501,7 +501,7 @@ File: `/test/include/Util/Print.h`
 ```C++
 
 /**
-	test::Print
+	Util::Print
 	Print.h
 	purpose: 
 
@@ -535,7 +535,7 @@ File: `/test/lib/Util/Print.h`
 ```C++
 
 /**
-	test::Print
+	Util::Print
 	Print.cpp
 	purpose: 
 
