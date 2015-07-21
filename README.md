@@ -76,7 +76,7 @@ For installing a library, you should do the following:
 To use the library, just add the following:
 
 ```
-#include "lib/Util/Print.h"
+#include "include/Util/Print.h"
 ```
 
 The default output of Main.cpp is the following:
