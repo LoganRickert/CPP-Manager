@@ -14,7 +14,7 @@ To create a project called test, run the following command:
 
 ```cpp-run create project <project name>```
 
-* <project name> is the name of your project and default namespace.
+* `<project name>` is the name of your project and default namespace.
 
 The following command will generate a tree as follows:
 
