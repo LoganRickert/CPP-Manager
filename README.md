@@ -42,18 +42,22 @@ test
 * 'bin' is where the final executable will go. Each executable will be 
 	named by the namespace that you build it from.
 * 'build' is where the CMake files, Makefiles, and object files are stored. 
-	The build folder is sorted into 'namespace / build/release'
-* 'doc' is where the project documentation is held. Currently the docs are 
-	not generated, but will be added soon. It will be a compulation of each 
+	The build folder is sorted into 'namespace / Debug/Release'
+* 'doc' is where the project documentation is held. Currently the doc generation is
+	not implemented, but will be added soon. It will be a compulation of each 
 	namespace.
 * 'include' and 'lib' are for over-arching files. 'include' is where 
-	is for header files and 'lib' is for cpp files. Complied is where the 
+	is header files go and 'lib' is for cpp files. Complied is where the 
 	Makefile exports the compiled libraries too. The project does not currently
-	natively support .a and .so files. They must be built during building.
+	natively support .a and .so files. They must be built during building and are 
+	put in the lib/compiled to be reused instead of rebuilt on building.
 * 'src' is where the project source is. The src is sorted by namespaces and
 	the default namespace is the name of the project (in this case test). 
 	Each namespace is sorted into 'include', for header files, 'src', for 
 	.cpp files, and 'doc', for namespace documentation.
+
+upon creating a project, it will also init a git. It will also add all files 
+directories and commit them with 'Initial project setup.'
 
 Sidenote:
 For installing a library, you should do the following:
@@ -111,11 +115,211 @@ Documentation
 * Line 4 is the author of the file
 * Line 5 is the 'version number' 'date the file was created; %m-%d-%Y %H:%M:S'.
 	Every time you build the project via cpp-run, the third zero will increment by 
-	one. If you increment the other numbers or reset the third number to 0 or any other
-	number, cpp-run will roll with it.
+	one. If you increment the other numbers or reset the third number to 0, cpp-run will roll with it.
 * Line 6 is the date and time the file was last compiled.
-	* This actually no long works not that I think about it, lol.
+	* This actually and line 5 no long works not that I think about it, lol.
 
 * Line 8 is the only instance of using namespace std in any classes or namespaces as it
 	is not recommended to be used. You can stop this from being added by editing 
 	src/default_class.cpp.
+
+## Creating A Class
+
+To create a class, do the following:
+
+```
+cpp-run create class <project name> <namespace> <class name> [class members]
+```
+
+* `<project name>` is the name of the project.
+* `<namespace>` is the name of the namespace inside of the project. If the namespace
+	and project name are the same, you can sub this with a `.`.
+* `<class name>` is the name of the class.
+* `[class members]` are members you want cpp-run to automatically add. It will generate 
+	getters and setters and a contructor([class members]) automatically.
+
+The following are two examples, one with no [class members] arg, and one with one.
+
+```
+cpp-run create class test test Person
+
+tree test/src/test
+├── doc
+├── include
+│   └── Person.h
+└── src
+    ├── Main.cpp
+    └── Person.cpp
+```
+
+```C++
+
+/**
+	test::Person
+	Person.cpp
+	purpose: 
+
+	@author Logan Rickert
+	@version 0.0.0 07-21-2015 10:24:28
+	@updated 07-21-2015 10:24:28
+*/
+
+#include "test/Person.h"
+
+Person::Person() {
+
+}
+
+Person::~Person() {
+
+}
+```
+
+```C++
+
+/**
+	test::Person
+	Person.h
+	purpose: 
+
+	@author Logan Rickert
+	@version 0.0.0 07-21-2015 10:24:28
+	@updated 07-21-2015 10:24:28
+*/
+
+#include <iostream>
+#include <string>
+
+#ifndef PERSON_H
+#define PERSON_H
+
+class Person {
+
+	public:
+		Person();
+
+		~Person();
+
+	private:
+
+};
+
+#endif
+```
+
+`#include "test/Person.h"` is automatically added to Main.cpp below `#include <string>`. If there are 
+no library calls and two new lines below them, it won't actually work.
+
+```
+cpp-run create class test test Student std::string name int age double gpa
+
+tree test/src/test
+├── doc
+├── include
+│   ├── Person.h
+│   └── Student.h
+└── src
+    ├── Main.cpp
+    ├── Person.cpp
+    └── Student.cpp
+```
+
+```C++
+
+/**
+	test::Student
+	Student.h
+	purpose: 
+
+	@author Logan Rickert
+	@version 0.0.0 07-21-2015 10:30:26
+	@updated 07-21-2015 10:30:26
+*/
+
+#include <iostream>
+#include <string>
+
+#ifndef STUDENT_H
+#define STUDENT_H
+
+class Student {
+
+	public:
+		Student();
+		Student(std::string, int, double);
+
+		~Student();
+
+		std::string getName();
+		int getAge();
+		double getGpa();
+
+		void setName(std::string sName);
+		void setAge(int sAge);
+		void setGpa(double sGpa);
+
+	private:
+		std::string name;
+		int age;
+		double gpa;
+
+};
+
+#endif
+```
+
+```C++
+
+/**
+	test::Student
+	Student.cpp
+	purpose: 
+
+	@author Logan Rickert
+	@version 0.0.0 07-21-2015 10:30:26
+	@updated 07-21-2015 10:30:26
+*/
+
+#include "test/Student.h"
+
+Student::Student() {
+
+}
+
+Student::Student(std::string sName, int sAge, double sGpa) {
+	name = sName;
+	age = sAge;
+	gpa = sGpa;
+}
+
+Student::~Student() {
+
+}
+
+std::string Student::getName() {
+	return name;
+}
+
+void Student::setName(std::string sName) {
+	name = sName;
+}
+
+int Student::getAge() {
+	return age;
+}
+
+void Student::setAge(int sAge) {
+	age = sAge;
+}
+
+double Student::getGpa() {
+	return gpa;
+}
+
+void Student::setGpa(double sGpa) {
+	gpa = sGpa;
+}
+```
+
+After each new class generation, cpp-run automatically git add classname.cpp and classname.h 
+and commits with the message: 'Added '$CLASS_NAME' cpp and h to '$namespace' namespace.'
