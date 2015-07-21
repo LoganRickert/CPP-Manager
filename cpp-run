@@ -58,7 +58,7 @@ createNewClass() {
 
 createNewProject() {
 	project_name=$1
-	
+
 	project_space=$OUTPUT_PATH/$project_name
 
 	mkdir -p "$project_space/bin"
@@ -68,14 +68,94 @@ createNewProject() {
 
 	cd $project_space
 	git init > /dev/null
-	# Make a .gitignore default mate.
-	echo 'bin/' > .gitignore
-	echo 'build/' >> .gitignore
-	echo 'lib/compiled' >> .gitignore
+	cp "$app_src_dir/gitignore-default" "$project_space/.gitignore"
 	git add .
 	git commit -m "Initial project setup." > /dev/null
 
 	createNewNamespace $project_name $project_name
+}
+
+createCMakeFile() {
+	namespace=$1
+
+	project_space=$OUTPUT_PATH/$project_name
+
+	src_dir=$project_space/src
+	output_bin=$project_space/bin
+	build_dir=$project_space/build/$namespace/$build_type
+	include_dir=$project_space/include
+	lib_dir=$project_space/lib
+
+	rm $build_dir/temp* 2> /dev/null
+
+	touch $build_dir/temp
+	touch $build_dir/temp2
+
+	printf "cmake_minimum_required(VERSION 2.8)\n\n" > $build_dir/CMakeLists.txt
+	printf "project(\"$namespace\")\n\n" >> $build_dir/CMakeLists.txt
+
+	printf "include_directories(\"$src_dir\")\n" >> $build_dir/CMakeLists.txt
+
+	printf "include_directories(\"$project_space\")\n\n" >> $build_dir/CMakeLists.txt
+
+	printf "add_executable(\"$namespace\"\n" >> $build_dir/CMakeLists.txt
+
+	for f in $(find $src_dir/$namespace/src -name *.cpp);
+	do
+		printf "\t\"$f\"\n" >> $build_dir/CMakeLists.txt
+	done
+
+	printf ")\n\n" >> $build_dir/CMakeLists.txt
+
+
+	for f in $(find $src_dir/ \( -name "*.cpp" -o -name "*.h" \));
+	do
+		result="$(cat $f | grep "#include \"include/")"
+		if ! [[ $result == "" ]];
+			then
+				echo "${result/\" #/\n}" >> $build_dir/temp
+		fi
+	done
+
+ 	cat $build_dir/temp | sort -u | while read line;
+	do
+		name=${line:18}
+		name=${name::-3}
+
+		echo $name
+
+		printf "add_library(\".${name/"/"/"."}\" STATIC \"$lib_dir/$name.cpp\")\n" >> $build_dir/CMakeLists.txt
+		printf "target_link_libraries(\"$namespace\" \".${name/"/"/"."}\")\n\n" >> $build_dir/CMakeLists.txt
+
+		echo "\".${name/"/"/"."}\" " >> $build_dir/temp2
+	done
+
+	printf "set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY $lib_dir/compiled)\n" >> $build_dir/CMakeLists.txt
+	printf "set(CMAKE_LIBRARY_OUTPUT_DIRECTORY $lib_dir/compiled)\n" >> $build_dir/CMakeLists.txt
+	printf "set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $output_bin)\n" >> $build_dir/CMakeLists.txt
+
+	printf "\nset_target_properties(\"$namespace\"\n" >> $build_dir/CMakeLists.txt
+
+	for f in $(cat $build_dir/temp2)
+	do
+		printf "\t$f\n" >> $build_dir/CMakeLists.txt
+	done
+
+	printf "\tPROPERTIES\n" >> $build_dir/CMakeLists.txt
+	printf "\tARCHIVE_OUTPUT_DIRECTORY \"$lib_dir/compiled\"\n" >> $build_dir/CMakeLists.txt
+	printf "\tLIBRARY_OUTPUT_DIRECTORY \"$lib_dir/compiled\"\n" >> $build_dir/CMakeLists.txt
+	printf "\tRUNTIME_OUTPUT_DIRECTORY \"$output_bin\"\n" >> $build_dir/CMakeLists.txt
+	printf ")\n" >> $build_dir/CMakeLists.txt
+}
+
+createMakefile() {
+	cd $build_dir
+	cmake -G "Unix Makefiles" > /dev/null
+}
+
+runMakefile() {
+	cd $build_dir
+	make > /dev/null
 }
 
 if [[ "$1" != "create" &&  "$1" != "build" ]];
@@ -109,102 +189,42 @@ if [[ "$1" == "build" ]];
 		current_time=$(timestamp)
 
 		project_path=$OUTPUT_PATH/$project_name
-		src_dir=$OUTPUT_PATH/$project_name/src
-		output_bin=$OUTPUT_PATH/$project_name/bin
-		build_dir=$OUTPUT_PATH/$project_name/build/$namespace/$build_type
-		include_dir=$OUTPUT_PATH/$project_name/include
-		lib_dir=$OUTPUT_PATH/$project_name/lib
-		g_include_dir=$OUTPUT_PATH/$project_name/
 
-		mkdir -p $output_bin/old/
-		mv $output_bin/*.* $output_bin/old/ 2> /dev/null
+		output_bin=$project_path/bin
+		build_dir=$project_path/build/$namespace/$build_type
 
-		rm $build_dir/temp* 2> /dev/null
+		createCMakeFile $namespace
 
-		touch $build_dir/temp
-		touch $build_dir/temp2
+		any_errors="no"
 
-		no_errors="yes"
-		built_file="no"
+		clear
 
-		# cmake -G "Unix Makefiles"
-
-		printf "cmake_minimum_required(VERSION 2.8)\n\n" > $build_dir/CMakeLists.txt
-		printf "project(\"$namespace\")\n\n" >> $build_dir/CMakeLists.txt
-
-		printf "include_directories(\"$src_dir\")\n" >> $build_dir/CMakeLists.txt
-
-		# for f in $src_dir/*;
-		# do
-		# 	printf "include_directories(\"$f\")\n" >> $build_dir/CMakeLists.txt
-		# done
-
-		printf "include_directories(\"$g_include_dir\")\n\n" >> $build_dir/CMakeLists.txt
-
-		printf "add_executable(\"$namespace\"\n" >> $build_dir/CMakeLists.txt
-
-		for f in $(find $src_dir/$namespace/src -name *.cpp);
-		do
-			printf "\t\"$f\"\n" >> $build_dir/CMakeLists.txt
-		done
-
-		printf ")\n\n" >> $build_dir/CMakeLists.txt
-
-
-		for f in $(find $src_dir/ \( -name "*.cpp" -o -name "*.h" \));
-		do
-			result="$(cat $f | grep "#include \"include/")"
-			if ! [[ $result == "" ]];
-				then
-					echo "${result/\" #/\n}" >> $build_dir/temp
-			fi
-		done
-
-	 	cat $build_dir/temp | sort -u | while read line;
-		do
-			name=${line:18}
-			name=${name::-3}
-
-			echo $name
-
-			printf "add_library(\".${name/"/"/"."}\" STATIC \"$lib_dir/$name.cpp\")\n" >> $build_dir/CMakeLists.txt
-			printf "target_link_libraries(\"$namespace\" \".${name/"/"/"."}\")\n\n" >> $build_dir/CMakeLists.txt
-
-			echo "\".${name/"/"/"."}\" " >> $build_dir/temp2
-		done
-
-		printf "set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY $lib_dir/compiled)\n" >> $build_dir/CMakeLists.txt
-		printf "set(CMAKE_LIBRARY_OUTPUT_DIRECTORY $lib_dir/compiled)\n" >> $build_dir/CMakeLists.txt
-		printf "set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $output_bin)\n" >> $build_dir/CMakeLists.txt
-
-		printf "\nset_target_properties(\"$namespace\"\n" >> $build_dir/CMakeLists.txt
-
-		for f in $(cat $build_dir/temp2)
-		do
-			printf "\t$f\n" >> $build_dir/CMakeLists.txt
-		done
-
-		printf "\tPROPERTIES\n" >> $build_dir/CMakeLists.txt
-		printf "\tARCHIVE_OUTPUT_DIRECTORY \"$lib_dir/compiled\"\n" >> $build_dir/CMakeLists.txt
-    	printf "\tLIBRARY_OUTPUT_DIRECTORY \"$lib_dir/compiled\"\n" >> $build_dir/CMakeLists.txt
-    	printf "\tRUNTIME_OUTPUT_DIRECTORY \"$output_bin\"\n" >> $build_dir/CMakeLists.txt
-		printf ")\n" >> $build_dir/CMakeLists.txt
-
-		rm $build_dir/temp* 2> /dev/null
-
-		cd $build_dir
-		cmake -G "Unix Makefiles" > /dev/null
-		make > /dev/null
-
-		if [[ -z "$5" ]];
+		if ! createMakefile $build_dir;
 			then
-				cd $OUTPUT_PATH/$project_name
+				echo "CMake Bad"
+				any_errors="yes"
+		fi
+		
+		if ! runMakefile $build_dir;
+			then
+				any_errors="yes"
+				echo "Make Bad"
+		fi
+
+		if [[ "$any_errors" == "no" && -z "$5" ]];
+			then
+				cd $project_path
 				git add .
 				git commit -a
 		fi
 
-		clear
-		$output_bin/$namespace
+		if [[ "$any_errors" == "no" ]];
+			then
+				clear
+				$output_bin/$namespace
+			else
+				echo "Build failed! Please review the errors."
+		fi
 fi
 
 if [[ "$1" == "create" ]];
