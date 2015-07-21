@@ -343,7 +343,7 @@ An example:
 ```
 cpp-run build test . Debug
 
-Added a util print function and #include "*.h"s
+Added a util print function and #include "*.h"s to Main.
 # Please enter the commit message for your changes. Lines starting
 # with '#' will be ignored, and an empty message aborts the commit.
 # On branch master
@@ -468,7 +468,7 @@ commit 48396f4cdfa24bda8a3059409c49d9c17e36b8a3
 Author: Logan Rickert <myemail>
 Date:   Tue Jul 21 10:45:17 2015 -0400
 
-    Added a util print function and #include "*.h"s
+    Added a util print function and #include "*.h"s to Main.
 
 commit 6f467fb0aebbe3351e2b85e5ff17baa46fd9d97d
 Author: Logan Rickert <myemail>
