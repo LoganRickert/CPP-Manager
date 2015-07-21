@@ -1,5 +1,5 @@
 # CPP-Manager
-This is the program I write that is basically a cpp console IDE. It can generate projects, classes, namespaces and more. It can also automatically build and run a project with one command and version controls.
+This is the program I wrote that is basically a cpp console IDE. It can generate projects, classes, namespaces and more. It can also automatically build and run a project with one command and version controls.
 
 The default output is at OUTPUT_PATH=~/cpp-workspace. It path can be found on line 6 of cpp-run.
 You can change the default name at the top of files by changing 'username' on line 17 of bin/parse_new_files.py
