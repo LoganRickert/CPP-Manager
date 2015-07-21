@@ -7,20 +7,20 @@ def capitalize(string):
 
 print sys.argv
 
-file_path = sys.argv[1]
-action = sys.argv[3]
-project_name = sys.argv[4]
+action = sys.argv[1]
+file_path = sys.argv[2]
+project_name = sys.argv[3]
 
 now = datetime.datetime.now()
 date = now.strftime("%m-%d-%Y %H:%M:%S")
 
-args = sys.argv[7:]
+args = sys.argv[6:]
 
 username = "Logan Rickert"
 
 def new_class():
-	namespace = sys.argv[5]
-	file_name = sys.argv[6]
+	namespace = sys.argv[4]
+	file_name = sys.argv[5]
 
 	cpp_file_path = file_path + "src/" + file_name + ".cpp"
 	h_file_path = file_path + "include/" + file_name + ".h"
