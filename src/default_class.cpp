@@ -9,7 +9,7 @@
 	@updated {{date}}
 */
 
-#include "{{namespace}}/{{class_name}}.h"
+#include "{{namespace}}/include/{{class_name}}.h"
 
 {{class_name}}::{{class_name}}() {
 
