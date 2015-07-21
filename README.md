@@ -164,7 +164,7 @@ tree test/src/test
 	@updated 07-21-2015 10:24:28
 */
 
-#include "test/Person.h"
+#include "test/include/Person.h"
 
 Person::Person() {
 
@@ -207,7 +207,7 @@ class Person {
 #endif
 ```
 
-`#include "test/Person.h"` is automatically added to Main.cpp below `#include <string>`. If there are 
+`#include "test/include/Person.h"` is automatically added to Main.cpp below `#include <string>`. If there are 
 no library calls and two new lines below them, it won't actually work.
 
 ```
@@ -280,7 +280,7 @@ class Student {
 	@updated 07-21-2015 10:30:26
 */
 
-#include "test/Student.h"
+#include "test/include/Student.h"
 
 Student::Student() {
 
@@ -325,8 +325,6 @@ After each new class generation, cpp-run automatically git add classname.cpp and
 and commits with the message: 'Added '$CLASS_NAME' cpp and h to '$namespace' namespace.'
 
 ## Building
-
-(Building is currently broken. It needs a super minor fix in the way it does includes. Should be fixed today.)
 
 To build your namespace, do the following:
 
@@ -455,6 +453,36 @@ tree test/src/
 On running the command, cpp-run will git add src/$namespace and commit with
 the following: 'Added '$namespace' namespace and initial Main.cpp.'.
 
+The following is the CMake file that was generated for test. (I'm still new to 
+CMake so I'm sure you could optimize it by a lot.)
+
+(The )
+```
+cmake_minimum_required(VERSION 2.8)
+
+project("test")
+
+include_directories("/home/logan/cpp-workspace/test/src")
+include_directories("/home/logan/cpp-workspace/test/include")
+
+add_executable("test"
+	"/home/logan/cpp-workspace/test/src/test/src/Person.cpp"
+	"/home/logan/cpp-workspace/test/src/test/src/Student.cpp"
+	"/home/logan/cpp-workspace/test/src/test/src/Main.cpp"
+)
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY /home/logan/cpp-workspace/test/lib/compiled)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY /home/logan/cpp-workspace/test/lib/compiled)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY /home/logan/cpp-workspace/test/bin)
+
+set_target_properties("test"
+	PROPERTIES
+	ARCHIVE_OUTPUT_DIRECTORY "/home/logan/cpp-workspace/test/lib/compiled"
+	LIBRARY_OUTPUT_DIRECTORY "/home/logan/cpp-workspace/test/lib/compiled"
+	RUNTIME_OUTPUT_DIRECTORY "/home/logan/cpp-workspace/test/bin"
+)
+```
+
 ## Final Git Log:
 
 ```
@@ -491,3 +519,11 @@ Date:   Tue Jul 21 09:49:21 2015 -0400
 
 A pretty nice log if I do say so myself for only actually
 writing one commit message.
+
+## Future Features
+
+* Fix @updated and @version to work again
+* Don't run ./namespace is CMake and make fails.
+* Autogenerate docs
+* On building of file, it organizes class files (Not Main) functions alphabetically.
+* On building of file, it organizes #include <> and #include "" alphabetically. 

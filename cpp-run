@@ -59,13 +59,6 @@ if [[ "$1" == "build" ]];
 		touch $build_dir/temp
 		touch $build_dir/temp2
 
-		if [[ -z "$5" ]];
-			then
-				cd $OUTPUT_PATH/$project_name
-				git add .
-				git commit -a
-		fi
-
 		no_errors="yes"
 		built_file="no"
 
@@ -76,10 +69,10 @@ if [[ "$1" == "build" ]];
 
 		printf "include_directories(\"$src_dir\")\n" >> $build_dir/CMakeLists.txt
 
-		for f in $src_dir/*;
-		do
-			printf "include_directories(\"$f\")\n" >> $build_dir/CMakeLists.txt
-		done
+		# for f in $src_dir/*;
+		# do
+		# 	printf "include_directories(\"$f\")\n" >> $build_dir/CMakeLists.txt
+		# done
 
 		printf "include_directories(\"$include_dir\")\n\n" >> $build_dir/CMakeLists.txt
 
@@ -95,7 +88,7 @@ if [[ "$1" == "build" ]];
 
 		for f in $(find $src_dir/ \( -name "*.cpp" -o -name "*.h" \));
 		do
-			result="$(cat $f | grep "#include \"" | grep -v "#include \"include/")"
+			result="$(cat $f | grep "#include \"lib/")"
 			if ! [[ $result == "" ]];
 				then
 					echo "${result/\" #/\n}" >> $build_dir/temp
@@ -136,9 +129,13 @@ if [[ "$1" == "build" ]];
 		cmake -G "Unix Makefiles" > /dev/null
 		make > /dev/null
 
-		cd $OUTPUT_PATH/$project_name/
-		git add .
-		git commit -a
+		if [[ -z "$5" ]];
+			then
+				cd $OUTPUT_PATH/$project_name
+				git add .
+				git commit -a
+		fi
+
 		clear
 		$output_bin/$project_name
 fi
