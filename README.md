@@ -6,6 +6,8 @@ I would recommend to put your projects at `~/cpp-workspace` but you don't have t
 To use commands outside of `create project`, you need to be anywhere in your project's directory. The program 
 will automatically figure out which project you are talking about.
 
+You can view the GitHub page here: http://loganrickert.github.io/CPP-Manager/
+
 # Usage
 
 ## Creating A Project
