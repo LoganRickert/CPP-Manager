@@ -211,7 +211,7 @@ def new_main():
 	)
 
 	cpp_file_contents = cpp_file_contents.replace(
-		"{{class_name}}", username
+		"{{username}}", username
 	)
 
 	cpp_file_contents = cpp_file_contents.replace(
