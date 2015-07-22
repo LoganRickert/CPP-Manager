@@ -1,10 +1,10 @@
 # CPP-Manager
 This is a program I wrote that is basically a cpp console IDE. It can generate projects, classes, namespaces and more. It can automatically build and run a project with one command and it also does automatic version control using Git.
 
-The default output is at OUTPUT_PATH=~/cpp-workspace. The path can be found on line 6 of cpp-man.
-You can change the default name at the top of files by changing 'username' on line 17 of bin/parse_new_files.py
+The place I recommend to start doing your builds is at `~/cpp-workspace` but you don't have to by any means.
 
-Please note that the code for this project needs to be insainely refactor and I will be doing that over the next few days now that I have the generate code down for the project up to this point. After the refactor, I will work on the documentation generation.
+To use commands outside of `create project`, you need to be anywhere in your project's directory. The program 
+will automatically figure out which project you are talking about.
 
 # Usage
 
@@ -16,7 +16,7 @@ To create a project called test, run the following command:
 
 * `<project name>` is the name of your project and default namespace.
 
-The following command will generate a tree as follows:
+The following command will generate a tree as follows in the current directory you are at.
 
 ```
 cpp-man create project test
@@ -128,10 +128,9 @@ Documentation
 To create a class, do the following:
 
 ```
-cpp-man create class <project name> <namespace> <class name> [class members]
+cpp-man create class <namespace> <class name> [class members]
 ```
 
-* `<project name>` is the name of the project.
 * `<namespace>` is the name of the namespace inside of the project. If the namespace
 	and project name are the same, you can sub this with a period.
 * `<class name>` is the name of the class.
@@ -141,7 +140,7 @@ cpp-man create class <project name> <namespace> <class name> [class members]
 The following are two examples, one with no [class members] arg, and one with one.
 
 ```
-cpp-man create class test test Person
+cpp-man create class test Person
 
 tree test/src/test
 ├── doc
@@ -211,7 +210,7 @@ class Person {
 no library calls and two new lines below them, it won't actually work.
 
 ```
-cpp-man create class test . Student std::string name int age double gpa
+cpp-man create class . Student std::string name int age double gpa
 
 tree test/src/test
 ├── doc
@@ -328,18 +327,17 @@ and commits with the message: 'Added '$CLASS_NAME' cpp and h to '$namespace' nam
 
 To build your namespace, do the following:
 
-```cpp-man build <project name> <namespace> [Default:Debug/Release] [No git commit]```
-* `<project name>` is the name of the project
+```cpp-man build <namespace> [Default:Debug/Release] [No git commit]```
 * `<namespace>` is the name of the namespace you want to build. If the namespace is 
 	the same as the project name, you can sub it for a peroid.
 * `[Default:Debug/Release]` is whether or not you want to build the namespace in
-	debug or release. No argument means it will build in Debug.
+	debug or release. No argument means it will build in Debug. You can also sub Debug for peroid.
 * `[No git commit]` means if this argument is present, it will not run `git add .` `git commit -a`.
 
 An example:
 
 ```
-cpp-man build test . Debug
+cpp-man build . Debug
 
 Added a util print function and #include "*.h"s to Main.
 # Please enter the commit message for your changes. Lines starting
@@ -453,10 +451,9 @@ set_target_properties("test"
 Creating a new namespace is super easy, just run:
 
 ```
-cpp-man create namespace <project name> <namespace>
+cpp-man create namespace <namespace>
 ```
 
-* `<project name>` is the name of the project.
 * `<namespace>` is the name of the namespace.
 
 Your tree of src should now look like this:
@@ -569,7 +566,7 @@ tree of lib and include:
 Now lets build like normal:
 
 ```
-cpp-man build test . Debug .
+cpp-man build . . .
 ```
 
 tree of lib and include:
@@ -629,3 +626,5 @@ writing one commit message.
 * Autogenerate docs
 * On building of file, it organizes class files (Not Main) functions alphabetically.
 * On building of file, it organizes #include <> and #include "" alphabetically. 
+* cleanup of build/namespace
+* A 'create library' function to easily create a library class.
