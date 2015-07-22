@@ -287,7 +287,7 @@ if [[ "$1" == "build" ]];
             then
                 namespace=$project_name
             else
-                namespace=$3
+                namespace=$2
         fi
 
         if [[ -z "$3" || "$3" == "." ]];
