@@ -117,7 +117,7 @@ createNewProject() {
     project_dir=$1
     project_name=$2
 
-    project_space=$project_dir
+    project_space=$project_dir/$project_name
 
     mkdir -p "$project_space/bin"
     mkdir -p "$project_space/doc"
@@ -131,7 +131,7 @@ createNewProject() {
     git add .
     git commit -m "Initial project setup." > /dev/null
 
-    createNewNamespace $project_dir $project_name $project_name
+    createNewNamespace $project_space $project_name $project_name
 }
 
 # This method generates a CMakefile for the project_name / namespace
