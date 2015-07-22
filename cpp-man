@@ -19,11 +19,6 @@ errorAndQuit() {
     exit
 }
 
-# This returns the time as formated as %T
-timestamp() {
-  date + "%T"
-}
-
 findCppManager() {
     found="false"
     directory="$(pwd)"
@@ -132,6 +127,30 @@ createNewProject() {
     git commit -m "Initial project setup." > /dev/null
 
     createNewNamespace $project_space $project_name $project_name
+}
+
+# This method does stuff.
+# Arguments:
+#     $1 - project_dir;      IE: ~/cpp-workspace/MySweetProject
+#     $2 - project_name      IE: MySweetProject
+#     $3 - namespace         IE: MySweetNamespace
+runcppmaster() {
+    project_dir=$1
+    project_name=$2
+    namespace=$3
+
+    working_dir=$project_dir/.cpp-manager/src/$namespace
+
+    mkdir -p $working_dir
+
+    for f in $(find $project_dir/src/$namespace -name *.cpp);
+    do
+        if [[ -e "$working_dir/${f##*/}" || $f -nt "$working_dir/${f##*/}" ]];
+            then
+                python "$app_bin_path/update_files.py" "build_inc" "$f"
+                touch "$working_dir/${f##*/}"
+        fi
+    done
 }
 
 # This method generates a CMakefile for the project_name / namespace
@@ -287,7 +306,7 @@ if [[ "$1" == "build" ]];
             then
                 namespace=$project_name
             else
-                namespace=$3
+                namespace=$2
         fi
 
         if [[ -z "$3" || "$3" == "." ]];
@@ -297,7 +316,7 @@ if [[ "$1" == "build" ]];
                 build_type=$3
         fi
 
-        current_time=$(timestamp)
+        runcppmaster $project_dir $project_name $namespace
 
         project_path=$project_dir
 
@@ -308,17 +327,17 @@ if [[ "$1" == "build" ]];
 
         any_errors="no"
 
-        clear
+        # clear
 
-        if ! createMakefile $build_dir $build_type;
-            then
-                any_errors="yes"
-        fi
+        # if ! createMakefile $build_dir $build_type;
+        #     then
+        #         any_errors="yes"
+        # fi
         
-        if ! runMakefile $build_dir;
-            then
-                any_errors="yes"
-        fi
+        # if ! runMakefile $build_dir;
+        #     then
+        #         any_errors="yes"
+        # fi
 
         if [[ "$any_errors" == "no" && -z "$4" ]];
             then
@@ -329,7 +348,7 @@ if [[ "$1" == "build" ]];
 
         if [[ "$any_errors" == "no" ]];
             then
-                clear
+                # clear
                 $output_bin/$namespace-$build_type
             else
                 echo "Build failed! Please review the errors."
