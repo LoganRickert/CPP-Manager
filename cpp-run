@@ -25,6 +25,28 @@ timestamp() {
   date + "%T"
 }
 
+findCppManager() {
+    found="false"
+    directory="$(pwd)"
+
+    while ! $found && [[ "$directory" == "/"* ]]
+    do
+        if [ -d "$directory/.cpp-manager" ];
+            then
+                found=true
+            else
+                directory=${directory%/*}
+        fi
+    done
+
+    if ! $found;
+        then
+            directory="error"
+    fi
+
+    echo $directory
+}
+
 # This creates a new namespace
 # It creates a ns directory for build and src.
 # It also adds a Main.cpp to the src/ns and parses it.
@@ -96,6 +118,7 @@ createNewProject() {
     mkdir -p "$project_space/doc"
     mkdir -p "$project_space/include/$project_name"
     mkdir -p "$project_space/lib/compiled"
+    mkdir -p "$project_space/.cpp-manager"
 
     cd $project_space
     git init > /dev/null
@@ -211,6 +234,16 @@ runMakefile() {
 #####          Start of program          #####
 #####                                    #####
 ##############################################
+
+project_dir=$(findCppManager)
+
+if [[ "$project_dir" != "error" ]]
+    then
+        echo "found at $project_dir"
+    else
+        echo "Wasn't able to find cpp workspace!"
+        errorAndQuit
+fi
 
 if [[ "$1" != "create" &&  "$1" != "build" ]];
     then
