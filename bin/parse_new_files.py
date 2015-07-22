@@ -8,6 +8,7 @@ def capitalize(string):
 action = sys.argv[1]
 file_path = sys.argv[2]
 project_name = sys.argv[3]
+namespace = sys.argv[4]
 
 now = datetime.datetime.now()
 date = now.strftime("%m-%d-%Y %H:%M:%S")
@@ -17,7 +18,6 @@ args = sys.argv[6:]
 username = "Logan Rickert"
 
 def new_class():
-	namespace = sys.argv[4]
 	file_name = sys.argv[5]
 
 	cpp_file_path = file_path + "src/" + file_name + ".cpp"
@@ -207,11 +207,11 @@ def new_main():
 	)
 
 	cpp_file_contents = cpp_file_contents.replace(
-		"{{namespace}}", project_name
+		"{{namespace}}", namespace
 	)
 
 	cpp_file_contents = cpp_file_contents.replace(
-		"{{class_name}}", username
+		"{{username}}", username
 	)
 
 	cpp_file_contents = cpp_file_contents.replace(

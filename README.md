@@ -1,10 +1,10 @@
 # CPP-Manager
 This is a program I wrote that is basically a cpp console IDE. It can generate projects, classes, namespaces and more. It can automatically build and run a project with one command and it also does automatic version control using Git.
 
-The default output is at OUTPUT_PATH=~/cpp-workspace. The path can be found on line 6 of cpp-run.
-You can change the default name at the top of files by changing 'username' on line 17 of bin/parse_new_files.py
+I would recommend to put your projects at `~/cpp-workspace` but you don't have to by any means.
 
-Please note that the code for this project needs to be insainely refactor and I will be doing that over the next few days now that I have the generate code down for the project up to this point. After the refactor, I will work on the documentation generation.
+To use commands outside of `create project`, you need to be anywhere in your project's directory. The program 
+will automatically figure out which project you are talking about.
 
 # Usage
 
@@ -12,14 +12,14 @@ Please note that the code for this project needs to be insainely refactor and I 
 
 To create a project called test, run the following command:
 
-```cpp-run create project <project name>```
+```cpp-man create project <project name>```
 
 * `<project name>` is the name of your project and default namespace.
 
-The following command will generate a tree as follows:
+The following command will generate a tree as follows in the current directory you are at.
 
 ```
-cpp-run create project test
+cpp-man create project test
 
 test
 ├── bin
@@ -47,7 +47,7 @@ test
 	not implemented, but will be added soon. It will be a compulation of each 
 	namespace.
 * 'include' and 'lib' are for over-arching files. 'include' is where 
-	is header files go and 'lib' is for cpp files. Complied is where the 
+	header files go and 'lib' is for cpp files. Complied is where the 
 	Makefile exports the compiled libraries too. The project does not currently
 	natively support .a and .so files. They must be built during building and are 
 	put in the lib/compiled to be reused instead of rebuilt on building.
@@ -114,8 +114,8 @@ Documentation
 * Line 3 is the reason this file exists
 * Line 4 is the author of the file
 * Line 5 is the 'version number' 'date the file was created; %m-%d-%Y %H:%M:S'.
-	Every time you build the project via cpp-run, the third zero will increment by 
-	one. If you increment the other numbers or reset the third number to 0, cpp-run will roll with it.
+	Every time you build the project via cpp-man, the third zero will increment by 
+	one. If you increment the other numbers or reset the third number to 0, cpp-man will roll with it.
 * Line 6 is the date and time the file was last compiled.
 	* This actually and line 5 no long works not that I think about it, lol.
 
@@ -128,20 +128,19 @@ Documentation
 To create a class, do the following:
 
 ```
-cpp-run create class <project name> <namespace> <class name> [class members]
+cpp-man create class <namespace> <class name> [class members]
 ```
 
-* `<project name>` is the name of the project.
 * `<namespace>` is the name of the namespace inside of the project. If the namespace
 	and project name are the same, you can sub this with a period.
 * `<class name>` is the name of the class.
-* `[class members]` are members you want cpp-run to automatically add. It will generate 
+* `[class members]` are members you want cpp-man to automatically add. It will generate 
 	getters and setters and a contructor([class members]) automatically.
 
 The following are two examples, one with no [class members] arg, and one with one.
 
 ```
-cpp-run create class test test Person
+cpp-man create class test Person
 
 tree test/src/test
 ├── doc
@@ -211,7 +210,7 @@ class Person {
 no library calls and two new lines below them, it won't actually work.
 
 ```
-cpp-run create class test . Student std::string name int age double gpa
+cpp-man create class . Student std::string name int age double gpa
 
 tree test/src/test
 ├── doc
@@ -321,25 +320,24 @@ void Student::setGpa(double sGpa) {
 }
 ```
 
-After each new class generation, cpp-run automatically git add classname.cpp and classname.h 
+After each new class generation, cpp-man automatically git add classname.cpp and classname.h 
 and commits with the message: 'Added '$CLASS_NAME' cpp and h to '$namespace' namespace.'
 
 ## Building
 
 To build your namespace, do the following:
 
-```cpp-run build <project name> <namespace> [Default:Debug/Release] [No git commit]```
-* `<project name>` is the name of the project
+```cpp-man build <namespace> [Default:Debug/Release] [No git commit]```
 * `<namespace>` is the name of the namespace you want to build. If the namespace is 
 	the same as the project name, you can sub it for a peroid.
 * `[Default:Debug/Release]` is whether or not you want to build the namespace in
-	debug or release. No argument means it will build in Debug.
+	debug or release. No argument means it will build in Debug. You can also sub Debug for a peroid.
 * `[No git commit]` means if this argument is present, it will not run `git add .` `git commit -a`.
 
 An example:
 
 ```
-cpp-run build test . Debug
+cpp-man build . Debug
 
 Added a util print function and #include "*.h"s to Main.
 # Please enter the commit message for your changes. Lines starting
@@ -412,9 +410,9 @@ test
 │       └── Release
 ```
 
-When you run `cpp-run build`, it generates a CMake file in the build/namespace/Debug directory.
+When you run `cpp-man build`, it generates a CMake file in the build/namespace/Debug directory.
 It then runs the CMake file by running 'cmake -G "Unix Makefiles"'. The command will generate a
-Makefile in the Debug folder and cpp-run then runs 'make'. Once it's done, it runs 'git add .' and 
+Makefile in the Debug folder and cpp-man then runs 'make'. Once it's done, it runs 'git add .' and 
 'git commit -a'. You can enter in a commit message and it will then run the new program.
 
 You can view the new program at bin/namespace.
@@ -428,7 +426,7 @@ cmake_minimum_required(VERSION 2.8)
 project("test")
 
 include_directories("/home/logan/cpp-workspace/test/src")
-include_directories("/home/logan/cpp-workspace/test/include")
+include_directories("/home/logan/cpp-workspace/test/")
 
 add_executable("test"
 	"/home/logan/cpp-workspace/test/src/test/src/Person.cpp"
@@ -453,11 +451,14 @@ set_target_properties("test"
 Creating a new namespace is super easy, just run:
 
 ```
-cpp-run create namespace <project name> <namespace>
+cpp-man create namespace <namespace>
 ```
 
-* `<project name>` is the name of the project.
 * `<namespace>` is the name of the namespace.
+
+```
+cpp-man create namespace testOther
+```
 
 Your tree of src should now look like this:
 
@@ -479,7 +480,7 @@ tree test/src/
         └── Main.cpp
 ```
 
-On running the command, cpp-run will git add src/$namespace and commit with
+On running the command, cpp-man will git add src/$namespace and commit with
 the following: 'Added '$namespace' namespace and initial Main.cpp.'.
 
 ## Libraries
@@ -569,7 +570,7 @@ tree of lib and include:
 Now lets build like normal:
 
 ```
-cpp-run build test . Debug .
+cpp-man build . . .
 ```
 
 tree of lib and include:
@@ -629,3 +630,5 @@ writing one commit message.
 * Autogenerate docs
 * On building of file, it organizes class files (Not Main) functions alphabetically.
 * On building of file, it organizes #include <> and #include "" alphabetically. 
+* cleanup of build/namespace
+* A 'create library' function to easily create a library class.

@@ -1,9 +1,8 @@
 #!/bin/bash
 
-APP_NAME=cpp-run
-app_src_dir=/usr/local/src/$APP_NAME/src
-app_bin_path=/usr/local/src/$APP_NAME/bin
-OUTPUT_PATH=~/cpp-workspace
+app_name=cpp-man
+app_src_dir=/usr/local/src/$app_name/src
+app_bin_path=/usr/local/src/$app_name/bin
 
 ##############################################
 #####                                    #####
@@ -16,7 +15,7 @@ OUTPUT_PATH=~/cpp-workspace
 # information.
 errorAndQuit() {
     # Refactor
-    echo "Error: '$APP_NAME help' for information."
+    echo "Error: '$app_name help' for information."
     exit
 }
 
@@ -25,16 +24,40 @@ timestamp() {
   date + "%T"
 }
 
+findCppManager() {
+    found="false"
+    directory="$(pwd)"
+
+    while ! $found && [[ "$directory" == "/"* ]]
+    do
+        if [ -d "$directory/.cpp-manager" ];
+            then
+                found=true
+            else
+                directory=${directory%/*}
+        fi
+    done
+
+    if ! $found;
+        then
+            directory="error"
+    fi
+
+    echo $directory
+}
+
 # This creates a new namespace
 # It creates a ns directory for build and src.
 # It also adds a Main.cpp to the src/ns and parses it.
 # Arguments:
-#     $1 - project_name;   IE: MySweetProject
-#    $2 - namespace;       IE: MySweetNamespace
+#    $1 - project_dir;     IE: ~/cpp-workspace/MySweetProject
+#    $2 - project_name;    IE: MySweetProject
+#    $3 - namespace;       IE: MySweetNamespace
 createNewNamespace() {
-    project_name=$1
-    namespace=$2
-    project_space=$OUTPUT_PATH/$project_name
+    project_dir=$1
+    project_name=$2
+    namespace=$3
+    project_space=$project_dir
 
     mkdir -p "$project_space/build/$namespace/Release"
     mkdir -p "$project_space/build/$namespace/Debug"
@@ -58,17 +81,19 @@ createNewNamespace() {
 # want to be added automatically. It adds the member variables to
 # the header and class and also adds default getters and setters.
 # Arguments:
-#     $1 - project_name;     IE: MySweetProject
-#    $2 - namespace;         IE: MySweetNamespace
-#    $3 - class_name;        IE: MySweetClass
-#    $4 ... $n - class_args; IE: std::string name int age
+#    $1 - project_dir;       IE: ~/cpp-workspace/MySweetProject
+#    $2 - project_name;      IE: MySweetProject
+#    $3 - namespace;         IE: MySweetNamespace
+#    $4 - class_name;        IE: MySweetClass
+#    $5 ... $n - class_args; IE: std::string name int age
 createNewClass() {
-    project_name=$1
-    namespace=$2
-    class_name=$3
-    class_args=${@:4}
+    project_dir=$1
+    project_name=$2
+    namespace=$3
+    class_name=$4
+    class_args=${@:5}
 
-    project_space=$OUTPUT_PATH/$project_name
+    project_space=$project_dir
     namespace_space=$project_space/src/$namespace
 
     cp "$app_src_dir/default_class.cpp" "$namespace_space/src/$class_name.cpp"
@@ -86,16 +111,19 @@ createNewClass() {
 # This method creates a new project at ~/cpp-workspace/$project_name
 # It creates a project_name bin, doc, include and lib.
 # Arguments:
-#     $1 - project_name    IE: MySweetProject
+#     $1 - project_dir;     IE: ~/cpp-workspace/MySweetProject
+#     $2 - project_name     IE: MySweetProject
 createNewProject() {
-    project_name=$1
+    project_dir=$1
+    project_name=$2
 
-    project_space=$OUTPUT_PATH/$project_name
+    project_space=$project_dir/$project_name
 
     mkdir -p "$project_space/bin"
     mkdir -p "$project_space/doc"
-    mkdir -p "$project_space/include/$project_name"
+    mkdir -p "$project_space/include"
     mkdir -p "$project_space/lib/compiled"
+    mkdir -p "$project_space/.cpp-manager"
 
     cd $project_space
     git init > /dev/null
@@ -103,20 +131,22 @@ createNewProject() {
     git add .
     git commit -m "Initial project setup." > /dev/null
 
-    createNewNamespace $project_name $project_name
+    createNewNamespace $project_space $project_name $project_name
 }
 
 # This method generates a CMakefile for the project_name / namespace
 # Arguments:
-#     $1 - project_name      IE: MySweetProject
-#     $1 - namespace         IE: MySweetNamespace
-#     $3 - build_type        IE: Debug IE: Release
+#     $1 - project_dir;      IE: ~/cpp-workspace/MySweetProject
+#     $2 - project_name      IE: MySweetProject
+#     $3 - namespace         IE: MySweetNamespace
+#     $4 - build_type        IE: Debug IE: Release
 createCMakeFile() {
-    project_name=$1
-    namespace=$2
-    build_type=$3
+    project_dir=$1
+    project_name=$2
+    namespace=$3
+    build_type=$4
 
-    project_space=$OUTPUT_PATH/$project_name
+    project_space=$project_dir
 
     src_dir=$project_space/src
     output_bin=$project_space/bin
@@ -124,19 +154,21 @@ createCMakeFile() {
     include_dir=$project_space/include
     lib_dir=$project_space/lib
 
+    mkdir -p $build_dir
+
     rm $build_dir/temp* 2> /dev/null
 
     touch $build_dir/temp
     touch $build_dir/temp2
 
     printf "cmake_minimum_required(VERSION 2.8)\n\n" > $build_dir/CMakeLists.txt
-    printf "project(\"$namespace\")\n\n" >> $build_dir/CMakeLists.txt
+    printf "project(\"$namespace-$build_type\")\n\n" >> $build_dir/CMakeLists.txt
 
     printf "include_directories(\"$src_dir\")\n" >> $build_dir/CMakeLists.txt
 
     printf "include_directories(\"$project_space\")\n\n" >> $build_dir/CMakeLists.txt
 
-    printf "add_executable(\"$namespace\"\n" >> $build_dir/CMakeLists.txt
+    printf "add_executable(\"$namespace-$build_type\"\n" >> $build_dir/CMakeLists.txt
 
     for f in $(find $src_dir/$namespace/src -name *.cpp);
     do
@@ -160,10 +192,8 @@ createCMakeFile() {
         name=${line:18}
         name=${name::-3}
 
-        echo $name
-
         printf "add_library(\".${name/"/"/"."}\" STATIC \"$lib_dir/$name.cpp\")\n" >> $build_dir/CMakeLists.txt
-        printf "target_link_libraries(\"$namespace\" \".${name/"/"/"."}\")\n\n" >> $build_dir/CMakeLists.txt
+        printf "target_link_libraries(\"$namespace-$build_type\" \".${name/"/"/"."}\")\n\n" >> $build_dir/CMakeLists.txt
 
         echo "\".${name/"/"/"."}\" " >> $build_dir/temp2
     done
@@ -172,7 +202,7 @@ createCMakeFile() {
     printf "set(CMAKE_LIBRARY_OUTPUT_DIRECTORY $lib_dir/compiled)\n" >> $build_dir/CMakeLists.txt
     printf "set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $output_bin)\n" >> $build_dir/CMakeLists.txt
 
-    printf "\nset_target_properties(\"$namespace\"\n" >> $build_dir/CMakeLists.txt
+    printf "\nset_target_properties(\"$namespace-$build_type\"\n" >> $build_dir/CMakeLists.txt
 
     for f in $(cat $build_dir/temp2)
     do
@@ -184,16 +214,20 @@ createCMakeFile() {
     printf "\tLIBRARY_OUTPUT_DIRECTORY \"$lib_dir/compiled\"\n" >> $build_dir/CMakeLists.txt
     printf "\tRUNTIME_OUTPUT_DIRECTORY \"$output_bin\"\n" >> $build_dir/CMakeLists.txt
     printf ")\n" >> $build_dir/CMakeLists.txt
+
+    rm $build_dir/temp* 2> /dev/null
 }
 
 # This method generates a Makefile for the directory given.
 # Arguments:
 #     $1 - build_dir    IE: $project_path/build/$namespace/$build_type
+#     $2 - build_type   IE: Debug
 createMakefile() {
     build_dir=$1
+    build_type=$2
 
     cd $build_dir
-    cmake -G "Unix Makefiles" > /dev/null
+    cmake -DCMAKE_BUILD_TYPE=$build_type -G "Unix Makefiles" > /dev/null
 }
 
 # This runs the make file in the directory given.
@@ -212,60 +246,81 @@ runMakefile() {
 #####                                    #####
 ##############################################
 
+# cpp-man create project <project name>
+if [[ "$1" == "create" && "$2" == "project" ]];
+    then
+        if [ -z "$3" ];
+            then 
+                errorAndQuit
+        fi
+
+        project_name=$3
+
+        createNewProject $(pwd) $project_name
+        exit
+fi
+
+project_dir=$(findCppManager)
+
+if [[ "$project_dir" == "error" ]]
+    then
+        echo "ERROR: Wasn't able to find the .cpp-manager folder!"
+        exit
+fi
+
+project_name=${project_dir##*/}
+
 if [[ "$1" != "create" &&  "$1" != "build" ]];
     then
         errorAndQuit
 fi
 
+# cpp-man build <$namespace> [Default:Debug / Release] [No git commit]
 if [[ "$1" == "build" ]];
     then
-        if [[ -z "$3" ]];
+        if [[ -z "$2" ]];
             then 
                 errorAndQuit
         fi
 
-        project_name=$2
-
-        if [[ "$3" == "." ]];
+        if [[ "$2" == "." ]];
             then
-                namespace=$2
+                namespace=$project_name
             else
                 namespace=$3
         fi
 
-        if [[ -z "$4" ]];
+        if [[ -z "$3" || "$3" == "." ]];
             then
                 build_type="Debug"
             else
-                build_type=$4
+                build_type=$3
         fi
 
         current_time=$(timestamp)
 
-        project_path=$OUTPUT_PATH/$project_name
+        project_path=$project_dir
 
         output_bin=$project_path/bin
         build_dir=$project_path/build/$namespace/$build_type
 
-        createCMakeFile $project_name $namespace $build_type
+        createCMakeFile $project_dir $project_name $namespace $build_type
 
         any_errors="no"
 
         clear
 
-        if ! createMakefile $build_dir;
+        if ! createMakefile $build_dir $build_type;
             then
-                echo "CMake Bad"
                 any_errors="yes"
         fi
         
         if ! runMakefile $build_dir;
             then
                 any_errors="yes"
-                echo "Make Bad"
         fi
 
-        if [[ "$any_errors" == "no" && -z "$5" ]];
+        if [[ "$any_errors" == "no" && -z "$4" ]];
             then
                 cd $project_path
                 git add .
@@ -275,12 +330,14 @@ if [[ "$1" == "build" ]];
         if [[ "$any_errors" == "no" ]];
             then
                 clear
-                $output_bin/$namespace
+                $output_bin/$namespace-$build_type
             else
                 echo "Build failed! Please review the errors."
         fi
 fi
 
+# cpp-man create class <namespace> <class_name> [class members]
+# cpp-man create namespace <name>
 if [[ "$1" == "create" ]];
     then
         # Check to make sure the thing to create has a name.
@@ -289,38 +346,30 @@ if [[ "$1" == "create" ]];
                 errorAndQuit
         fi
 
-        if [[ "$2" == "project" ]];
-            then
-                project_name=$3
-
-                createNewProject $project_name
-        fi;
-
         if [[ "$2" == "class" ]];
-            then
-                if [[ -z "$5" ]];
-                    then 
-                        errorAndQuit
-                fi
-
-                project_name=$3
-                namespace=$4
-                class_name=$5
-                class_args=${@:6}
-
-                createNewClass $project_name $namespace $class_name $class_args
-        fi;
-
-        if [[ "$2" == "namespace" ]];
             then
                 if [[ -z "$4" ]];
                     then 
                         errorAndQuit
                 fi
 
-                project_name=$3
-                namespace=$4
+                if [[ "$3" == "." ]];
+                    then
+                        namespace=$project_name
+                    else
+                        namespace=$3
+                fi
 
-                createNewNamespace $project_name $namespace
+                class_name=$4
+                class_args=${@:5}
+
+                createNewClass $project_dir $project_name $namespace $class_name $class_args
+        fi;
+
+        if [[ "$2" == "namespace" ]];
+            then
+                namespace=$3
+
+                createNewNamespace $project_dir $project_name $namespace
         fi;
 fi;
