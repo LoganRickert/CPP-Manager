@@ -1,6 +1,6 @@
 #!/bin/bash
 
-APP_NAME=cpp-run
+APP_NAME=cpp-man
 app_src_dir=/usr/local/src/$APP_NAME/src
 app_bin_path=/usr/local/src/$APP_NAME/bin
 OUTPUT_PATH=~/cpp-workspace
