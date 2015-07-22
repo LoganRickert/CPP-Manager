@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Cpp-manager by LoganRickert</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Cpp-manager</h1>
+      <h2 class="project-tagline">This is a program I wrote that is basically a cpp console IDE. It can generate projects, classes, namespaces and more. It can also automatically build and run a project with one command and version controls.</h2>
+      <a href="https://github.com/LoganRickert/CPP-Manager" class="btn">View on GitHub</a>
+      <a href="https://github.com/LoganRickert/CPP-Manager/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/LoganRickert/CPP-Manager/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="cpp-manager" class="anchor" href="#cpp-manager" aria-hidden="true"><span class="octicon octicon-link"></span></a>CPP-Manager</h1>
+
+<p>This is a program I wrote that is basically a cpp console IDE. It can generate projects, classes, namespaces and more. It can automatically build and run a project with one command and it also does automatic version control using Git.</p>
+
+<p>I would recommend to put your projects at <code>~/cpp-workspace</code> but you don't have to by any means.</p>
+
+<p>To use commands outside of <code>create project</code>, you need to be anywhere in your project's directory. The program 
+will automatically figure out which project you are talking about.</p>
+
+<h1>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h1>
+
+<h2>
+<a id="creating-a-project" class="anchor" href="#creating-a-project" aria-hidden="true"><span class="octicon octicon-link"></span></a>Creating A Project</h2>
+
+<p>To create a project called test, run the following command:</p>
+
+<p><code>cpp-man create project &lt;project name&gt;</code></p>
+
+<ul>
+<li>
+<code>&lt;project name&gt;</code> is the name of your project and default namespace.</li>
+</ul>
+
+<p>The following command will generate a tree as follows in the current directory you are at.</p>
+
+<pre><code>cpp-man create project test
+
+test
+├── bin
+├── build
+│   └── test
+│       ├── Debug
+│       └── Release
+├── doc
+├── include
+├── lib
+│   └── compiled
+└── src
+    └── test
+        ├── doc
+        ├── include
+        └── src
+            └── Main.cpp
+</code></pre>
+
+<ul>
+<li>'bin' is where the final executable will go. Each executable will be 
+named by the namespace that you build it from.</li>
+<li>'build' is where the CMake files, Makefiles, and object files are stored. 
+The build folder is sorted into 'namespace / Debug/Release'</li>
+<li>'doc' is where the project documentation is held. Currently the doc generation is
+not implemented, but will be added soon. It will be a compulation of each 
+namespace.</li>
+<li>'include' and 'lib' are for over-arching files. 'include' is where 
+header files go and 'lib' is for cpp files. Complied is where the 
+Makefile exports the compiled libraries too. The project does not currently
+natively support .a and .so files. They must be built during building and are 
+put in the lib/compiled to be reused instead of rebuilt on building.</li>
+<li>'src' is where the project source is. The src is sorted by namespaces and
+the default namespace is the name of the project (in this case test). 
+Each namespace is sorted into 'include', for header files, 'src', for 
+.cpp files, and 'doc', for namespace documentation.</li>
+</ul>
+
+<p>upon creating a project, it will also init a git. It will also add all files 
+directories and commit them with 'Initial project setup.'</p>
+
+<p>Sidenote:
+For installing a library, you should do the following:</p>
+
+<pre><code>├── include
+│   ├── test
+│   └── Util
+│       └── Print.h
+├── lib
+│   ├── compiled
+│   └── Util
+│       └── Print.cpp
+</code></pre>
+
+<p>To use the library, just add the following:</p>
+
+<pre><code>#include "include/Util/Print.h"
+</code></pre>
+
+<p>The default output of Main.cpp is the following:</p>
+
+<div class="highlight highlight-C++"><pre>
+<span class="pl-c">/**</span>
+<span class="pl-c">    test::Main</span>
+<span class="pl-c">    Main.cpp</span>
+<span class="pl-c">    purpose: </span>
+<span class="pl-c"></span>
+<span class="pl-c">    @author Logan Rickert</span>
+<span class="pl-c">    @version 0.0.0 07-21-2015 09:49:21</span>
+<span class="pl-c">    @updated 07-21-2015 09:49:21</span>
+<span class="pl-c">*/</span>
+
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>iostream<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>string<span class="pl-pds">&gt;</span></span>
+
+
+<span class="pl-k">using</span> <span class="pl-k">namespace</span> <span class="pl-en">std</span><span class="pl-k">;</span>
+
+<span class="pl-k">int</span> <span class="pl-en">main</span>() {
+
+    cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Hello World<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;
+
+    <span class="pl-k">return</span> <span class="pl-c1">0</span>;
+
+}</pre></div>
+
+<p>Documentation</p>
+
+<ul>
+<li>Line 1 is the namespace::Filename</li>
+<li>Line 2 is the filename</li>
+<li>Line 3 is the reason this file exists</li>
+<li>Line 4 is the author of the file</li>
+<li>Line 5 is the 'version number' 'date the file was created; %m-%d-%Y %H:%M:S'.
+Every time you build the project via cpp-man, the third zero will increment by 
+one. If you increment the other numbers or reset the third number to 0, cpp-man will roll with it.</li>
+<li>
+<p>Line 6 is the date and time the file was last compiled.</p>
+
+<ul>
+<li>This actually and line 5 no long works not that I think about it, lol.</li>
+</ul>
+</li>
+<li><p>Line 8 is the only instance of using namespace std in any classes or namespaces as it
+is not recommended to be used. You can stop this from being added by editing 
+src/default_class.cpp.</p></li>
+</ul>
+
+<h2>
+<a id="creating-a-class" class="anchor" href="#creating-a-class" aria-hidden="true"><span class="octicon octicon-link"></span></a>Creating A Class</h2>
+
+<p>To create a class, do the following:</p>
+
+<pre><code>cpp-man create class &lt;namespace&gt; &lt;class name&gt; [class members]
+</code></pre>
+
+<ul>
+<li>
+<code>&lt;namespace&gt;</code> is the name of the namespace inside of the project. If the namespace
+and project name are the same, you can sub this with a period.</li>
+<li>
+<code>&lt;class name&gt;</code> is the name of the class.</li>
+<li>
+<code>[class members]</code> are members you want cpp-man to automatically add. It will generate 
+getters and setters and a contructor([class members]) automatically.</li>
+</ul>
+
+<p>The following are two examples, one with no [class members] arg, and one with one.</p>
+
+<pre><code>cpp-man create class test Person
+
+tree test/src/test
+├── doc
+├── include
+│   └── Person.h
+└── src
+    ├── Main.cpp
+    └── Person.cpp
+</code></pre>
+
+<div class="highlight highlight-C++"><pre>
+<span class="pl-c">/**</span>
+<span class="pl-c">    test::Person</span>
+<span class="pl-c">    Person.cpp</span>
+<span class="pl-c">    purpose: </span>
+<span class="pl-c"></span>
+<span class="pl-c">    @author Logan Rickert</span>
+<span class="pl-c">    @version 0.0.0 07-21-2015 10:24:28</span>
+<span class="pl-c">    @updated 07-21-2015 10:24:28</span>
+<span class="pl-c">*/</span>
+
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>test/include/Person.h<span class="pl-pds">"</span></span>
+
+<span class="pl-en">Person::Person</span>() {
+
+}
+
+<span class="pl-en">Person::~Person</span>() {
+
+}</pre></div>
+
+<div class="highlight highlight-C++"><pre>
+<span class="pl-c">/**</span>
+<span class="pl-c">    test::Person</span>
+<span class="pl-c">    Person.h</span>
+<span class="pl-c">    purpose: </span>
+<span class="pl-c"></span>
+<span class="pl-c">    @author Logan Rickert</span>
+<span class="pl-c">    @version 0.0.0 07-21-2015 10:24:28</span>
+<span class="pl-c">    @updated 07-21-2015 10:24:28</span>
+<span class="pl-c">*/</span>
+
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>iostream<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>string<span class="pl-pds">&gt;</span></span>
+
+#<span class="pl-k">ifndef</span> PERSON_H
+#<span class="pl-k">define</span> <span class="pl-en">PERSON_H</span>
+
+<span class="pl-k">class</span> <span class="pl-en">Person</span> {
+
+    <span class="pl-k">public:</span>
+        <span class="pl-en">Person</span>();
+
+        <span class="pl-en">~Person</span>();
+
+    <span class="pl-k">private:</span>
+
+};
+
+#<span class="pl-k">endif</span></pre></div>
+
+<p><code>#include "test/include/Person.h"</code> is automatically added to Main.cpp below <code>#include &lt;string&gt;</code>. If there are 
+no library calls and two new lines below them, it won't actually work.</p>
+
+<pre><code>cpp-man create class . Student std::string name int age double gpa
+
+tree test/src/test
+├── doc
+├── include
+│   ├── Person.h
+│   └── Student.h
+└── src
+    ├── Main.cpp
+    ├── Person.cpp
+    └── Student.cpp
+</code></pre>
+
+<div class="highlight highlight-C++"><pre>
+<span class="pl-c">/**</span>
+<span class="pl-c">    test::Student</span>
+<span class="pl-c">    Student.h</span>
+<span class="pl-c">    purpose: </span>
+<span class="pl-c"></span>
+<span class="pl-c">    @author Logan Rickert</span>
+<span class="pl-c">    @version 0.0.0 07-21-2015 10:30:26</span>
+<span class="pl-c">    @updated 07-21-2015 10:30:26</span>
+<span class="pl-c">*/</span>
+
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>iostream<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>string<span class="pl-pds">&gt;</span></span>
+
+#<span class="pl-k">ifndef</span> STUDENT_H
+#<span class="pl-k">define</span> <span class="pl-en">STUDENT_H</span>
+
+<span class="pl-k">class</span> <span class="pl-en">Student</span> {
+
+    <span class="pl-k">public:</span>
+        <span class="pl-en">Student</span>();
+        <span class="pl-en">Student</span>(std::string, <span class="pl-k">int</span>, <span class="pl-k">double</span>);
+
+        <span class="pl-en">~Student</span>();
+
+        std::string <span class="pl-en">getName</span>();
+        <span class="pl-k">int</span> <span class="pl-en">getAge</span>();
+        <span class="pl-k">double</span> <span class="pl-en">getGpa</span>();
+
+        <span class="pl-k">void</span> <span class="pl-en">setName</span>(std::string <span class="pl-smi">sName</span>);
+        <span class="pl-k">void</span> <span class="pl-en">setAge</span>(<span class="pl-k">int</span> <span class="pl-smi">sAge</span>);
+        <span class="pl-k">void</span> <span class="pl-en">setGpa</span>(<span class="pl-k">double</span> <span class="pl-smi">sGpa</span>);
+
+    <span class="pl-k">private:</span>
+        std::string name;
+        <span class="pl-k">int</span> age;
+        <span class="pl-k">double</span> gpa;
+
+};
+
+#<span class="pl-k">endif</span></pre></div>
+
+<div class="highlight highlight-C++"><pre>
+<span class="pl-c">/**</span>
+<span class="pl-c">    test::Student</span>
+<span class="pl-c">    Student.cpp</span>
+<span class="pl-c">    purpose: </span>
+<span class="pl-c"></span>
+<span class="pl-c">    @author Logan Rickert</span>
+<span class="pl-c">    @version 0.0.0 07-21-2015 10:30:26</span>
+<span class="pl-c">    @updated 07-21-2015 10:30:26</span>
+<span class="pl-c">*/</span>
+
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>test/include/Student.h<span class="pl-pds">"</span></span>
+
+<span class="pl-en">Student::Student</span>() {
+
+}
+
+<span class="pl-en">Student::Student</span>(std::string <span class="pl-smi">sName</span>, <span class="pl-k">int</span> <span class="pl-smi">sAge</span>, <span class="pl-k">double</span> <span class="pl-smi">sGpa</span>) {
+    name = <span class="pl-smi">sName</span>;
+    age = <span class="pl-smi">sAge</span>;
+    gpa = <span class="pl-smi">sGpa</span>;
+}
+
+<span class="pl-en">Student::~Student</span>() {
+
+}
+
+std::string <span class="pl-en">Student::getName</span>() {
+    <span class="pl-k">return</span> name;
+}
+
+<span class="pl-k">void</span> <span class="pl-en">Student::setName</span>(std::string <span class="pl-smi">sName</span>) {
+    name = <span class="pl-smi">sName</span>;
+}
+
+<span class="pl-k">int</span> <span class="pl-en">Student::getAge</span>() {
+    <span class="pl-k">return</span> age;
+}
+
+<span class="pl-k">void</span> <span class="pl-en">Student::setAge</span>(<span class="pl-k">int</span> <span class="pl-smi">sAge</span>) {
+    age = <span class="pl-smi">sAge</span>;
+}
+
+<span class="pl-k">double</span> <span class="pl-en">Student::getGpa</span>() {
+    <span class="pl-k">return</span> gpa;
+}
+
+<span class="pl-k">void</span> <span class="pl-en">Student::setGpa</span>(<span class="pl-k">double</span> <span class="pl-smi">sGpa</span>) {
+    gpa = <span class="pl-smi">sGpa</span>;
+}</pre></div>
+
+<p>After each new class generation, cpp-man automatically git add classname.cpp and classname.h 
+and commits with the message: 'Added '$CLASS_NAME' cpp and h to '$namespace' namespace.'</p>
+
+<h2>
+<a id="building" class="anchor" href="#building" aria-hidden="true"><span class="octicon octicon-link"></span></a>Building</h2>
+
+<p>To build your namespace, do the following:</p>
+
+<p><code>cpp-man build &lt;namespace&gt; [Default:Debug/Release] [No git commit]</code></p>
+
+<ul>
+<li>
+<code>&lt;namespace&gt;</code> is the name of the namespace you want to build. If the namespace is 
+the same as the project name, you can sub it for a peroid.</li>
+<li>
+<code>[Default:Debug/Release]</code> is whether or not you want to build the namespace in
+debug or release. No argument means it will build in Debug. You can also sub Debug for a peroid.</li>
+<li>
+<code>[No git commit]</code> means if this argument is present, it will not run <code>git add .</code> <code>git commit -a</code>.</li>
+</ul>
+
+<p>An example:</p>
+
+<pre><code>cpp-man build . Debug
+
+Added a util print function and #include "*.h"s to Main.
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Changes to be committed:
+#       new file:   include/Util/Print.h
+#       new file:   lib/Util/Print.cpp
+#       modified:   src/test/src/Main.cpp
+#
+
+Hello World
+</code></pre>
+
+<p>Our new tree for bin and build looks like this:</p>
+
+<pre><code>test
+├── bin
+│   ├── old
+│   └── test
+├── build
+│   └── test
+│       ├── Debug
+│       │   ├── CMakeCache.txt
+│       │   ├── CMakeFiles
+│       │   │   ├── 2.8.12.2
+│       │   │   │   ├── CMakeCCompiler.cmake
+│       │   │   │   ├── CMakeCXXCompiler.cmake
+│       │   │   │   ├── CMakeDetermineCompilerABI_C.bin
+│       │   │   │   ├── CMakeDetermineCompilerABI_CXX.bin
+│       │   │   │   ├── CMakeSystem.cmake
+│       │   │   │   ├── CompilerIdC
+│       │   │   │   │   ├── a.out
+│       │   │   │   │   └── CMakeCCompilerId.c
+│       │   │   │   └── CompilerIdCXX
+│       │   │   │       ├── a.out
+│       │   │   │       └── CMakeCXXCompilerId.cpp
+│       │   │   ├── cmake.check_cache
+│       │   │   ├── CMakeDirectoryInformation.cmake
+│       │   │   ├── CMakeOutput.log
+│       │   │   ├── CMakeTmp
+│       │   │   ├── Makefile2
+│       │   │   ├── Makefile.cmake
+│       │   │   ├── progress.marks
+│       │   │   ├── TargetDirectories.txt
+│       │   │   └── test.dir
+│       │   │       ├── build.make
+│       │   │       ├── cmake_clean.cmake
+│       │   │       ├── CXX.includecache
+│       │   │       ├── DependInfo.cmake
+│       │   │       ├── depend.internal
+│       │   │       ├── depend.make
+│       │   │       ├── flags.make
+│       │   │       ├── home
+│       │   │       │   └── logan
+│       │   │       │       └── cpp-workspace
+│       │   │       │           └── test
+│       │   │       │               └── src
+│       │   │       │                   └── test
+│       │   │       │                       └── src
+│       │   │       │                           ├── Main.cpp.o
+│       │   │       │                           ├── Person.cpp.o
+│       │   │       │                           └── Student.cpp.o
+│       │   │       ├── link.txt
+│       │   │       └── progress.make
+│       │   ├── cmake_install.cmake
+│       │   ├── CMakeLists.txt
+│       │   └── Makefile
+│       └── Release
+</code></pre>
+
+<p>When you run <code>cpp-man build</code>, it generates a CMake file in the build/namespace/Debug directory.
+It then runs the CMake file by running 'cmake -G "Unix Makefiles"'. The command will generate a
+Makefile in the Debug folder and cpp-man then runs 'make'. Once it's done, it runs 'git add .' and 
+'git commit -a'. You can enter in a commit message and it will then run the new program.</p>
+
+<p>You can view the new program at bin/namespace.</p>
+
+<p>The following is the CMake file that was generated for test. (I'm still new to 
+CMake so I'm sure you could optimize it by a lot.)</p>
+
+<pre><code>cmake_minimum_required(VERSION 2.8)
+
+project("test")
+
+include_directories("/home/logan/cpp-workspace/test/src")
+include_directories("/home/logan/cpp-workspace/test/")
+
+add_executable("test"
+    "/home/logan/cpp-workspace/test/src/test/src/Person.cpp"
+    "/home/logan/cpp-workspace/test/src/test/src/Student.cpp"
+    "/home/logan/cpp-workspace/test/src/test/src/Main.cpp"
+)
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY /home/logan/cpp-workspace/test/lib/compiled)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY /home/logan/cpp-workspace/test/lib/compiled)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY /home/logan/cpp-workspace/test/bin)
+
+set_target_properties("test"
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "/home/logan/cpp-workspace/test/lib/compiled"
+    LIBRARY_OUTPUT_DIRECTORY "/home/logan/cpp-workspace/test/lib/compiled"
+    RUNTIME_OUTPUT_DIRECTORY "/home/logan/cpp-workspace/test/bin"
+)
+</code></pre>
+
+<h2>
+<a id="creating-a-new-namespace" class="anchor" href="#creating-a-new-namespace" aria-hidden="true"><span class="octicon octicon-link"></span></a>Creating A New Namespace</h2>
+
+<p>Creating a new namespace is super easy, just run:</p>
+
+<pre><code>cpp-man create namespace &lt;namespace&gt;
+</code></pre>
+
+<ul>
+<li>
+<code>&lt;namespace&gt;</code> is the name of the namespace.</li>
+</ul>
+
+<pre><code>cpp-man create namespace testOther
+</code></pre>
+
+<p>Your tree of src should now look like this:</p>
+
+<pre><code>tree test/src/
+├── test
+│   ├── doc
+│   ├── include
+│   │   ├── Person.h
+│   │   └── Student.h
+│   └── src
+│       ├── Main.cpp
+│       ├── Person.cpp
+│       └── Student.cpp
+└── testOther
+    ├── doc
+    ├── include
+    └── src
+        └── Main.cpp
+</code></pre>
+
+<p>On running the command, cpp-man will git add src/$namespace and commit with
+the following: 'Added '$namespace' namespace and initial Main.cpp.'.</p>
+
+<h2>
+<a id="libraries" class="anchor" href="#libraries" aria-hidden="true"><span class="octicon octicon-link"></span></a>Libraries</h2>
+
+<p>File: <code>/test/src/test/src/Main.cpp</code></p>
+
+<div class="highlight highlight-C++"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>iostream<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>string<span class="pl-pds">&gt;</span></span>
+
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>test/include/Student.h<span class="pl-pds">"</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>test/include/Person.h<span class="pl-pds">"</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>include/Util/Print.h<span class="pl-pds">"</span></span></pre></div>
+
+<p>File: <code>/test/include/Util/Print.h</code></p>
+
+<div class="highlight highlight-C++"><pre>
+<span class="pl-c">/**</span>
+<span class="pl-c">    Util::Print</span>
+<span class="pl-c">    Print.h</span>
+<span class="pl-c">    purpose: </span>
+<span class="pl-c"></span>
+<span class="pl-c">    @author Logan Rickert</span>
+<span class="pl-c">    @version 0.0.0 07-21-2015 10:24:28</span>
+<span class="pl-c">    @updated 07-21-2015 10:24:28</span>
+<span class="pl-c">*/</span>
+
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>iostream<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>string<span class="pl-pds">&gt;</span></span>
+
+#<span class="pl-k">ifndef</span> PRINT_H
+#<span class="pl-k">define</span> <span class="pl-en">PRINT_H</span>
+
+<span class="pl-k">class</span> <span class="pl-en">Print</span> {
+
+    <span class="pl-k">public:</span>
+        <span class="pl-en">Print</span>();
+
+        <span class="pl-en">~Print</span>();
+
+    <span class="pl-k">private:</span>
+
+};
+
+#<span class="pl-k">endif</span></pre></div>
+
+<p>File: <code>/test/lib/Util/Print.h</code></p>
+
+<div class="highlight highlight-C++"><pre>
+<span class="pl-c">/**</span>
+<span class="pl-c">    Util::Print</span>
+<span class="pl-c">    Print.cpp</span>
+<span class="pl-c">    purpose: </span>
+<span class="pl-c"></span>
+<span class="pl-c">    @author Logan Rickert</span>
+<span class="pl-c">    @version 0.0.0 07-21-2015 10:24:28</span>
+<span class="pl-c">    @updated 07-21-2015 10:24:28</span>
+<span class="pl-c">*/</span>
+
+#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">"</span>include/Util/Print.h<span class="pl-pds">"</span></span>
+
+<span class="pl-en">Print::Print</span>() {
+
+}
+
+<span class="pl-en">Print::~Print</span>() {
+
+}</pre></div>
+
+<p>tree of lib and include:</p>
+
+<pre><code>├── include
+│   └── Util
+│       └── Print.h
+├── lib
+│   ├── compiled
+│   └── Util
+│       └── Print.cpp
+</code></pre>
+
+<p>Now lets build like normal:</p>
+
+<pre><code>cpp-man build . . .
+</code></pre>
+
+<p>tree of lib and include:</p>
+
+<pre><code>├── include
+│   └── Util
+│       └── Print.h
+├── lib
+│   ├── compiled
+│   │   └── lib.Util.Print.a
+│   └── Util
+│       └── Print.cpp
+</code></pre>
+
+<h2>
+<a id="final-git-log" class="anchor" href="#final-git-log" aria-hidden="true"><span class="octicon octicon-link"></span></a>Final Git Log:</h2>
+
+<pre><code>commit 53e20e9bd19a10c30bdb98796a2504046fcea637
+Author: Logan Rickert &lt;myemail&gt;
+Date:   Tue Jul 21 10:53:42 2015 -0400
+
+    Added 'testOther' namespace and initial Main.cpp.
+
+commit 48396f4cdfa24bda8a3059409c49d9c17e36b8a3
+Author: Logan Rickert &lt;myemail&gt;
+Date:   Tue Jul 21 10:45:17 2015 -0400
+
+    Added a util print function and #include "*.h"s to Main.
+
+commit 6f467fb0aebbe3351e2b85e5ff17baa46fd9d97d
+Author: Logan Rickert &lt;myemail&gt;
+Date:   Tue Jul 21 10:30:26 2015 -0400
+
+    Added 'Student' cpp and h to 'test' namespace.
+
+commit 293d1f5038e68b2b4dde4f7870a0286f684c9c2e
+Author: Logan Rickert &lt;myemail&gt;
+Date:   Tue Jul 21 10:24:28 2015 -0400
+
+    Added 'Person' cpp and h to 'test' namespace.
+
+commit 634bbc170f57a0602006fd9d2c9ac6be31a98c2e
+Author: Logan Rickert &lt;myemail&gt;
+Date:   Tue Jul 21 09:49:21 2015 -0400
+
+    Initial project setup.
+</code></pre>
+
+<p>A pretty nice log if I do say so myself for only actually
+writing one commit message.</p>
+
+<h2>
+<a id="future-features" class="anchor" href="#future-features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Future Features</h2>
+
+<ul>
+<li>Fix <a href="https://github.com/updated" class="user-mention">@updated</a> and <a href="https://github.com/version" class="user-mention">@version</a> to work again</li>
+<li>Don't run ./namespace is CMake and make fails.</li>
+<li>Autogenerate docs</li>
+<li>On building of file, it organizes class files (Not Main) functions alphabetically.</li>
+<li>On building of file, it organizes #include &lt;&gt; and #include "" alphabetically. </li>
+<li>cleanup of build/namespace</li>
+<li>A 'create library' function to easily create a library class.</li>
+</ul>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/LoganRickert/CPP-Manager">Cpp-manager</a> is maintained by <a href="https://github.com/LoganRickert">LoganRickert</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
+
