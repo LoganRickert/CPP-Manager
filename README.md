@@ -1,7 +1,7 @@
 # CPP-Manager
 This is a program I wrote that is basically a cpp console IDE. It can generate projects, classes, namespaces and more. It can automatically build and run a project with one command and it also does automatic version control using Git.
 
-The place I recommend to start doing your builds is at `~/cpp-workspace` but you don't have to by any means.
+I would recommend to put your projects at `~/cpp-workspace` but you don't have to by any means.
 
 To use commands outside of `create project`, you need to be anywhere in your project's directory. The program 
 will automatically figure out which project you are talking about.
@@ -47,7 +47,7 @@ test
 	not implemented, but will be added soon. It will be a compulation of each 
 	namespace.
 * 'include' and 'lib' are for over-arching files. 'include' is where 
-	is header files go and 'lib' is for cpp files. Complied is where the 
+	header files go and 'lib' is for cpp files. Complied is where the 
 	Makefile exports the compiled libraries too. The project does not currently
 	natively support .a and .so files. They must be built during building and are 
 	put in the lib/compiled to be reused instead of rebuilt on building.
@@ -331,7 +331,7 @@ To build your namespace, do the following:
 * `<namespace>` is the name of the namespace you want to build. If the namespace is 
 	the same as the project name, you can sub it for a peroid.
 * `[Default:Debug/Release]` is whether or not you want to build the namespace in
-	debug or release. No argument means it will build in Debug. You can also sub Debug for peroid.
+	debug or release. No argument means it will build in Debug. You can also sub Debug for a peroid.
 * `[No git commit]` means if this argument is present, it will not run `git add .` `git commit -a`.
 
 An example:
@@ -426,7 +426,7 @@ cmake_minimum_required(VERSION 2.8)
 project("test")
 
 include_directories("/home/logan/cpp-workspace/test/src")
-include_directories("/home/logan/cpp-workspace/test/include")
+include_directories("/home/logan/cpp-workspace/test/")
 
 add_executable("test"
 	"/home/logan/cpp-workspace/test/src/test/src/Person.cpp"
@@ -455,6 +455,10 @@ cpp-man create namespace <namespace>
 ```
 
 * `<namespace>` is the name of the namespace.
+
+```
+cpp-man create namespace testOther
+```
 
 Your tree of src should now look like this:
 
