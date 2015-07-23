@@ -215,7 +215,11 @@ createCMakeFile() {
         name=${line:10}
         name=${name::-3}
 
-        name=$src_dir/$name.cpp
+        namespace_dir=${name%/*}
+        namespace_dir=${namespace_dir%/*}
+        file_name_dir=${name##*/}
+
+        name=$src_dir/$namespace_dir/src/$file_name_dir.cpp
 
         printf "\t\"$name\"\n" >> $build_dir/CMakeLists.txt
     done
