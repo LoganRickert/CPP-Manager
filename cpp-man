@@ -143,7 +143,7 @@ runcppmaster() {
 
     mkdir -p $working_dir
 
-    for f in $(find $project_dir/src/$namespace -name *.cpp);
+    for f in $(find $project_dir/src/$namespace -regex '\(.*h\|.*cpp\)');
     do
         if [[ -e "$working_dir/${f##*/}" || $f -nt "$working_dir/${f##*/}" ]];
             then
@@ -179,6 +179,7 @@ createCMakeFile() {
 
     touch $build_dir/temp
     touch $build_dir/temp2
+    touch $build_dir/temp3
 
     printf "cmake_minimum_required(VERSION 2.8)\n\n" > $build_dir/CMakeLists.txt
     printf "project(\"$namespace-$build_type\")\n\n" >> $build_dir/CMakeLists.txt
@@ -194,9 +195,6 @@ createCMakeFile() {
         printf "\t\"$f\"\n" >> $build_dir/CMakeLists.txt
     done
 
-    printf ")\n\n" >> $build_dir/CMakeLists.txt
-
-
     for f in $(find $src_dir/ \( -name "*.cpp" -o -name "*.h" \));
     do
         result="$(cat $f | grep "#include \"include/")"
@@ -204,9 +202,27 @@ createCMakeFile() {
             then
                 echo "${result/\" #/\n}" >> $build_dir/temp
         fi
+
+        result="$(cat $f | grep "#include \"" | grep -v "#include \"include/")"
+        if ! [[ $result == "" ]];
+            then
+                echo "${result/\" #/\n}" >> $build_dir/temp3
+        fi
     done
 
-     cat $build_dir/temp | sort -u | while read line;
+    cat $build_dir/temp3 | sort -u | while read line;
+    do
+        name=${line:10}
+        name=${name::-3}
+
+        name=$src_dir/$name.cpp
+
+        printf "\t\"$name\"\n" >> $build_dir/CMakeLists.txt
+    done
+
+    printf ")\n\n" >> $build_dir/CMakeLists.txt
+
+    cat $build_dir/temp | sort -u | while read line;
     do
         name=${line:18}
         name=${name::-3}
@@ -329,15 +345,15 @@ if [[ "$1" == "build" ]];
 
         # clear
 
-        # if ! createMakefile $build_dir $build_type;
-        #     then
-        #         any_errors="yes"
-        # fi
+        if ! createMakefile $build_dir $build_type;
+            then
+                any_errors="yes"
+        fi
         
-        # if ! runMakefile $build_dir;
-        #     then
-        #         any_errors="yes"
-        # fi
+        if ! runMakefile $build_dir;
+            then
+                any_errors="yes"
+        fi
 
         if [[ "$any_errors" == "no" && -z "$4" ]];
             then

@@ -1,7 +1,7 @@
 
 import sys
 import datetime
-import operator
+import re
 
 operation = sys.argv[1]
 file_path = sys.argv[2]
@@ -15,6 +15,7 @@ def sortByColumn(A,*args):
     return A
 
 def build_inc():
+	print "going through " + file_path
 	build_file = None
 
 	with open(file_path, 'r') as f:
@@ -26,6 +27,11 @@ def build_inc():
 	loc_includes_lines = []
 	ext_includes = {}
 	ext_includes_lines = []
+
+	matches = {
+		'prototype': r'.* .*\(.*\);',
+		'contructor': r'^[a-zA-Z0-9~]*\(.*\);'
+	}
 
 	for i, line in enumerate(build_file):
 		if "#include <" in line:
@@ -69,8 +75,68 @@ def build_inc():
 	for i in ext_includes_lines[countB + 1:]:
 		build_file[i] = "// REMOVE THIS LINE"
 
-	while "// REMOVE THIS LINE" in build_file: 
-		build_file.remove("// REMOVE THIS LINE")   
+	while "// REMOVE THIS LINE" in build_file:
+		build_file.remove("// REMOVE THIS LINE")
+
+	# reg_build_file = list(build_file)
+	# for i, item in enumerate(reg_build_file): reg_build_file[i] = item.strip()
+
+	# func_stack = []
+	# func_line_nums = []
+	# func_temp_line_nums = []
+
+	# doc_stack = []
+	# doc_line_nums = []
+	# doc_temp_line_nums = []
+
+	# for i, line in enumerate(reg_build_file):
+	# 	func_should_append_line = False
+	# 	doc_should_append_line = False
+
+	# 	for char in line:
+	# 		if "{" in char:
+	# 			if len(func_stack) == 0:
+	# 				func_should_append_line = True
+	# 				func_stack.append("{")
+	# 		elif "}" in char:
+	# 			func_stack.pop()
+	# 			if len(func_stack) == 0:
+	# 				doc_temp_line_nums.append(i + 1)
+	# 				doc_should_append_line = False
+	# 				func_line_nums.append(func_temp_line_nums)
+	# 				func_temp_line_nums = []
+	# 		elif len(func_stack) > 0:
+	# 			func_should_append_line = True
+
+	# 		if "/**" in char:
+	# 			if len(doc_stack) == 0:
+	# 				doc_should_append_line = True
+	# 				doc_stack.append("*")
+	# 		elif "*/" in char:
+	# 			doc_stack.pop()
+	# 			if len(doc_stack) == 0:
+	# 				doc_should_append_line = True
+	# 				doc_line_nums.append(doc_temp_line_nums)
+	# 				doc_temp_line_nums = []
+	# 		elif len(doc_stack) > 0:
+	# 			doc_should_append_line = True
+		
+	# 	if func_should_append_line:
+	# 		func_temp_line_nums.append(i + 1)
+
+	# 	if doc_temp_line_nums:
+	# 		doc_temp_line_nums.append(i + 1)
+
+
+	# print func_line_nums
+	# print doc_line_nums
+
+	# reg_build_file = '\n'.join(reg_build_file)
+
+	# for name, match in matches.items():
+	# 	search = re.findall(match, reg_build_file, re.I | re.M)
+	# 	if search:
+	# 		print name + ": ", search
 
 	with open(file_path, 'w') as f:
 		f.write('\n'.join(build_file))

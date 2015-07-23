@@ -83,7 +83,7 @@ def new_class():
 		getters_setters = ""
 
 		for key, value in parse:
-			getters_setters += """%s %s::get%s() {
+			getters_setters += """%s %s::get%s() const {
 	return %s;
 }
 
@@ -158,7 +158,7 @@ void %s::set%s(%s s%s) {
 		getters_setters = ""
 
 		for key, value in parse:
-			getters_setters += "\t\t" + key + " get" + capitalize(value) + "();\n"
+			getters_setters += "\t\t" + key + " get" + capitalize(value) + "() const;\n"
 
 		getters_setters += '\n'
 
